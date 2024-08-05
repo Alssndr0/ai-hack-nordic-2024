@@ -1,0 +1,1 @@
+# ai-hack-nordic-2024
