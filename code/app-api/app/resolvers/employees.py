@@ -57,7 +57,7 @@ class Query:
     @strawberry.field
     def employees(self) -> List[Employee]:
         '''Returns a list of all employees.'''
-        return list_employees()
+        return list_of_all_employees()
 
 
     @strawberry.field
@@ -133,10 +133,10 @@ class Mutation:
 class Subscription:
     @strawberry.subscription(permission_classes=[IsAuthenticated])
     async def employee_created(self, info: strawberry.types.info) -> AsyncGenerator[Employee, None]:
-        seen = set(p.id for p in list_employees)
+        seen = set(p.id for p in list_of_all_employees())
         while True:
             current_time = int(time.time())
-            for p in list_employees:
+            for p in list_of_all_employees():
                 if p.id not in seen:
                     seen.add(p.id)
                     yield p
