@@ -30,20 +30,26 @@ def employee_info_by_id(id: str):
 @strawberry.type
 class Employee:
     id: str
-    name: str
+    first_name: str 
+    last_name: str 
     email: str
     address: str
     date_of_birth: str
     emergency_contact: str
+    date_hired: str
+    contracted_hours: str
 
 
 @strawberry.input
 class EmployeeCreateInput:
-    name: str
+    first_name: str 
+    last_name: str 
     email: str
     address: str
     date_of_birth: str
     emergency_contact: str
+    date_hired: str
+    contracted_hours: str
 
 
 @strawberry.type
@@ -74,25 +80,32 @@ class Mutation:
             cb.insert(
                 env.get_couchbase_conf(),
                 cb.DocSpec(
-                    bucket = cb.get_couchbase_bucket(),
+                    bucket = env.get_couchbase_bucket(),
                     collection = 'employees',
                     key = id,
                     data = {
-                        'name' : employee.name,
+                        'first_name' : employee.first_name,
+                        'last_name' : employee.last_name,
                         'email' : employee.email,
                         'address' : employee.address,
                         'date_of_birth' : employee.date_of_birth,
-                        'emergency_contact' : employee.emergency_contact
+                        'emergency_contact' : employee.emergency_contact,
+                        'date_hired' : employee.date_hired,
+                        'contracted_hours' : employee.contracted_hours
                     }
                 )
             )
 
             created_employee = Employee(
                 id = id,
-                name = employee.name,
+                first_name = employee.first_name,
+                last_name = employee,
                 email = employee.email,
                 address = employee.address,
-                emergency_contact = employee.emergency_contact
+                date_of_birth = employee.date_of_birth,
+                emergency_contact = employee.emergency_contact,
+                date_hired = employee.date_hired,
+                contracted_hours = employee.contracted_hours
             )
 
             created_employees.append(created_employee)
@@ -107,7 +120,7 @@ class Mutation:
             cb.remove(
                 env.get_couchbase_conf(),
                 cb.DocRef(
-                    bucket = cb.get_couchbase_bucket(),
+                    bucket = env.get_couchbase_bucket(),
                     collection = 'employees',
                     key = id
                 )
