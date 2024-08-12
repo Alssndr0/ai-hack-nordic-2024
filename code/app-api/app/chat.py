@@ -8,7 +8,9 @@ app = FastAPI()
 
 # Set your OpenAI API key
 #openai.api_key = os.getenv("OPENAI_API_KEY")
-openai.api_key = "sk-proj-Vt1YvJ7fjhgMAFuHOg9RT3BlbkFJHbhWrBgRySvLt62957lx"
+
+# NOTE : ADD the OpenAI api key here
+openai.api_key = "#######"
 
 # Define the request and response models
 class ChatRequest(BaseModel):

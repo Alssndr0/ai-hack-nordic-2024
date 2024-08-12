@@ -1,7 +1,9 @@
-import React from 'react'; 
+import React, { useState } from 'react'; 
 import { ApolloProvider } from '@apollo/client';
 import create_api_client from '../utils/apolloClient';
 import Products from './Items';
+import Wrapper from './Wrapper/Wrapper';
+import Onboarding from './Onboarding';
 
 interface AuthenticatedProps {
   userInfo: Record<string, any>; 
@@ -14,15 +16,11 @@ function on_graphql_error(messages: string[]) {
 } 
 
 const Authenticated: React.FC<AuthenticatedProps> = ({ userInfo, logout, csrf }) => {
+    const [isSetup, setIsSetup] = useState(false);
     return (
         <ApolloProvider client={create_api_client(csrf, on_graphql_error)}>
-            <div>
-                Authenticated as: {JSON.stringify(userInfo)}
-            </div>
-            <button onClick={logout}>
-                Logout
-            </button>
-            <Products />
+            {!isSetup && <Onboarding onFinish={() => setIsSetup(true)} logout={logout} userInfo={userInfo} />}
+            {isSetup && <Wrapper logout={logout} userInfo={userInfo} />}
         </ApolloProvider>
     )
 } 

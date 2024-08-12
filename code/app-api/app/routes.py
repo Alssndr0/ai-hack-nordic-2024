@@ -34,7 +34,9 @@ class ChatResponse(BaseModel):
 
 
 # Create an APIRouter instance for the chat route
-openai_key = "sk-proj-Vt1YvJ7fjhgMAFuHOg9RT3BlbkFJHbhWrBgRySvLt62957lx"
+# NOTE : ADD the OpenAI api key here
+openai_key = "#######"
+
 chat_router = APIRouter()
 client = OpenAI(api_key= openai_key)
 
