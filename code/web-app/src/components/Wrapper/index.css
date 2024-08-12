@@ -1,0 +1,7 @@
+
+.menu-button-bg {
+    transition:ease 0.1s;
+}
+.menu-button-bg:hover {
+    background: rgba(0,0,0,0.05) !important;
+}

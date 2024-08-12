@@ -34,6 +34,13 @@ const useAuth = () => {
     // Check login state on pageload. 
     useEffect(() => { 
         (async () => {
+            if(process.env, process.env.REACT_APP_LOCAL) {
+                setIsLoggedIn(true)
+                setCsrf("csrf")
+                setUserInfo({})
+                setGetLoginStateComplete(true)
+                return
+            }
             if (isLoginStateChecked) {
                 return;
             }
@@ -64,7 +71,6 @@ const useAuth = () => {
             window.removeEventListener('storage', handleStorageEvent);
         };
     }, [handleLogout]);
-
     return { getLoginStateComplete, isLoggedIn, csrf, userInfo, isLoggingOut };
 };
 
