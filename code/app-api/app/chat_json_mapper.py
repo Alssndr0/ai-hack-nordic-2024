@@ -1,12 +1,12 @@
 import json
 import uuid
-from .resolver.business import Mutation as BusinessMutation
-from .resolver.employees import Mutation as EmployeeMutation
-from .resolver.locations import Mutation as LocationMutation
-from .resolver.location_opening_hours import Mutation as LocationOpeningHoursMutation
-from .resolver.shifts import Mutation as ShiftMutation
-from .resolver.roles import Mutation as RoleMutation
-from .resolver.staff_requirements import Mutation as StaffRequirementMutation
+from .resolvers.businesses import Mutation as BusinessMutation
+from .resolvers.employees import Mutation as EmployeeMutation
+from .resolvers.locations import Mutation as LocationMutation
+from .resolvers.location_opening_hours import Mutation as LocationOpeningHoursMutation
+from .resolvers.shifts import Mutation as ShiftMutation
+from .resolvers.roles import Mutation as RoleMutation
+from .resolvers.staff_requirements import Mutation as StaffRequirementMutation
 from .context import get_context
 
 async def load_json(file_path):
@@ -32,8 +32,8 @@ async def create_roles(roles_data):
 async def create_staff_requirements(staff_requirements_data):
     await StaffRequirementMutation().staff_requirements_create(staff_requirements=staff_requirements_data)
 
-async def map_json_to_db(file_path):
-    data = await load_json(file_path)
+async def map_json_to_db(data):
+    # data = await load_json(file_path)
 
     # Simulate a context for GraphQL Mutations
     context = await get_context()

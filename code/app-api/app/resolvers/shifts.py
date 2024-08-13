@@ -27,6 +27,7 @@ class Shift:
 
 @strawberry.input
 class ShiftCreateInput:
+    id : str
     shift_name: str
     location_id: str
     start_time: str

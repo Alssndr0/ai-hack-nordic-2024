@@ -26,6 +26,7 @@ class Location:
 
 @strawberry.input
 class LocationCreateInput:
+    id: str
     business_id: str
     name: str
     address: str

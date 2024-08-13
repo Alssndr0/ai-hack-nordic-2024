@@ -42,6 +42,7 @@ class Employee:
 
 @strawberry.input
 class EmployeeCreateInput:
+#    id: str
     first_name: str 
     last_name: str 
     email: str

@@ -15,7 +15,7 @@ class Mutation:
         # Insert employee details
         employee_id = str(uuid.uuid4())
         employee_input = EmployeeCreateInput(
-            # id=employee_id,
+            #id=employee_id,
             first_name=input.first_name,
             last_name=input.last_name,
             email=input.email,

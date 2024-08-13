@@ -25,6 +25,7 @@ class StaffRequirement:
 
 @strawberry.input
 class StaffRequirementCreateInput:
+    id: str
     shift_id: str
     role_id: str
     employees_required: int

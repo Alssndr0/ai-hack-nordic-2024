@@ -26,6 +26,7 @@ class LocationOpeningHours:
 
 @strawberry.input
 class LocationOpeningHoursCreateInput:
+    id: str
     location_id: str
     day_of_week: int
     open_time: str

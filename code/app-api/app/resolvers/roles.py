@@ -24,6 +24,7 @@ class Role:
 
 @strawberry.input
 class RoleCreateInput:
+    id: str
     name: str
     description: str
 

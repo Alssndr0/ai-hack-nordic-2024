@@ -6,6 +6,7 @@ import uuid
 import logging
 from .. import couchbase as cb, env
 from ..auth import IsAuthenticated
+from ..types import CreateConstraintsResponse
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +88,10 @@ class Mutation:
             )
             created_constraints.append(created_constraint)
         return created_constraints
+        # return CreateConstraintsResponse(
+        #     message=f"Constraints created succesfully for employee id {constraint.employee_id}",
+        #     employee_id=constraint.employee_id
+        # )
 
     @strawberry.field(permission_classes=[IsAuthenticated])
     async def constraints_remove(self, ids: List[str]) -> List[str]:

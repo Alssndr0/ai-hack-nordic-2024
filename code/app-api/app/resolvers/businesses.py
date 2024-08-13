@@ -25,6 +25,7 @@ class Business:
 
 @strawberry.input
 class BusinessCreateInput:
+    id : str
     location_id: str
     name: str
     email: str

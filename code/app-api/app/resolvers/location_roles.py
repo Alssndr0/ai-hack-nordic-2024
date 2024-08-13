@@ -24,6 +24,7 @@ class LocationRole:
 
 @strawberry.input
 class LocationRoleCreateInput:
+    id: str
     location_id: str
     role_id: str
 
