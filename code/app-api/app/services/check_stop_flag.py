@@ -28,6 +28,7 @@ def check_json_response(chatgpt_message):
     return stop_chat
 
 
+
 def check_markdown_response(chatgpt_message):
     stop_chat = False
 
@@ -45,4 +46,10 @@ def check_markdown_response(chatgpt_message):
     if all(re.search(section, chatgpt_message) for section in required_sections):
         stop_chat = True  # Stop the chat if the summary is complete
 
+    if not stop_chat:
+        if '**' in chatgpt_message or 'markdown' in chatgpt_message:
+            stop_chat = True
+        else:
+            stop_chat = False
+            
     return stop_chat
