@@ -66,8 +66,19 @@ class BusinessInfo:
     id: str
     info: JSONScalar
 
+def list_businesses_info():
+    result = cb.exec(
+        env.get_couchbase_conf(),
+        f"SELECT info, META().id FROM {env.get_couchbase_bucket()}._default.business_onboarding_info"
+    )
+    return [BusinessInfo(**r) for r in result]
+
 @strawberry.type
 class Query:
+    @strawberry.field
+    def businesses_onboarding_info(self) -> List[BusinessInfo]:
+        return list_businesses_info()
+
     @strawberry.field
     def business_onboarding_info(self, id: str) -> BusinessInfo:
         result = cb.get(
