@@ -47,27 +47,29 @@ class Query:
 @strawberry.type
 class Mutation:
     @strawberry.field(permission_classes=[IsAuthenticated])
-    async def businesses_create(self, businesses: List[BusinessCreateInput]) -> List[Business]:
+    async def businesses_create(self, business: BusinessCreateInput) -> List[Business]:
         created_businesses = []
-        for business in businesses:
-            id = str(uuid.uuid1())
-            cb.insert(env.get_couchbase_conf(),
-                      cb.DocSpec(bucket=env.get_couchbase_bucket(),
-                                 collection='businesses',
-                                 key=id,
-                                 data={
-                                     'location_id': business.location_id,
-                                     'name': business.name,
-                                     'email': business.email
-                                 }))
-            created_business = Business(
-                id=id,
-                location_id=business.location_id,
-                name=business.name,
-                email=business.email
-            )
-            created_businesses.append(created_business)
-        return created_businesses
+        # for business in businesses:
+        # print(business)
+        key_id = str(uuid.uuid1())
+        cb.insert(env.get_couchbase_conf(),
+                    cb.DocSpec(bucket=env.get_couchbase_bucket(),
+                                collection='businesses',
+                                key=key_id,
+                                data={
+                                    'id': business['id'],
+                                    'location_id': business['location_id'],
+                                    'name': business['name'],
+                                    'email': business['email']
+                                }))
+        # created_business = Business(
+        #     id=business.id,
+        #     location_id=business.location_id,
+        #     name=business.name,
+        #     email=business.email
+        # )
+        # created_businesses.append(created_business)
+        return True
 
     @strawberry.field(permission_classes=[IsAuthenticated])
     async def businesses_remove(self, ids: List[str]) -> List[str]:
