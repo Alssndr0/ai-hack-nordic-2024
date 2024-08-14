@@ -50,15 +50,16 @@ class Mutation:
     async def staff_requirements_create(self, staff_requirements: List[StaffRequirementCreateInput]) -> List[StaffRequirement]:
         created_staff_requirements = []
         for requirement in staff_requirements:
-            id = str(uuid.uuid1())
+            key_id = str(uuid.uuid1())
             cb.insert(env.get_couchbase_conf(),
                       cb.DocSpec(bucket=env.get_couchbase_bucket(),
                                  collection='staff_requirements',
-                                 key=id,
+                                 key=key_id,
                                  data={
-                                     'shift_id': requirement.shift_id,
-                                     'role_id': requirement.role_id,
-                                     'employees_required': requirement.employees_required
+                                    'id': requirement['id'],
+                                     'shift_id': requirement['shift_id'],
+                                     'role_id': requirement['role_id'],
+                                     'employees_required': requirement['employees_required']
                                  }))
             created_staff_requirement = StaffRequirement(
                 id=id,
