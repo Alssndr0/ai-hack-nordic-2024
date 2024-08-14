@@ -59,6 +59,7 @@ modules:
         - { name: HTTP_GRAPHQL_UI, value: false } 
         - { name: AUTH_OIDC_AUDIENCE, value: http://localhost/api }
         - { name: AUTH_OIDC_JWK_URL, value: https://curity:8443/oauth/v2/oauth-anonymous/jwks }
+        - {name: OPENAI_API_KEY, value: ...}
       mounts:
         - { path: /root/.cache/, source: { type: volume, scope: project, id: dependency-cache }}
 
