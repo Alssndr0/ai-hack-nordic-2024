@@ -52,26 +52,27 @@ class Mutation:
     async def locations_create(self, locations: List[LocationCreateInput]) -> List[Location]:
         created_locations = []
         for location in locations:
-            id = str(uuid.uuid1())
+            key_id = str(uuid.uuid1())
             cb.insert(env.get_couchbase_conf(),
                       cb.DocSpec(bucket=env.get_couchbase_bucket(),
                                  collection='locations',
-                                 key=id,
+                                 key = key_id,
                                  data={
-                                     'business_id': location.business_id,
-                                     'name': location.name,
-                                     'address': location.address,
-                                     'email': location.email
+                                     'id': location['id'],
+                                     'business_id': location['business_id'],
+                                     'name': location['name'],
+                                     'address': location['address'],
+                                     'email': location['email']
                                  }))
-            created_location = Location(
-                id=id,
-                business_id=location.business_id,
-                name=location.name,
-                address=location.address,
-                email=location.email
-            )
-            created_locations.append(created_location)
-        return created_locations
+            # created_location = Location(
+            #     id=id,
+            #     business_id=location.business_id,
+            #     name=location.name,
+            #     address=location.address,
+            #     email=location.email
+            # )
+            # created_locations.append(created_location)
+        return True
 
     @strawberry.field(permission_classes=[IsAuthenticated])
     async def locations_remove(self, ids: List[str]) -> List[str]:
