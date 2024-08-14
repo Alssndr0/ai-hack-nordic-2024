@@ -26,6 +26,7 @@
     "oidc-client-ts": "^3.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-markdown": "^9.0.1",
     "react-router-dom": "^6.22.2",
     "react-scripts": "5.0.1",
     "recharts": "^2.12.7",
@@ -36,6 +37,7 @@
   "scripts": {
     "start": "WATCHPACK_POLLING=true && react-scripts start",
     "start-local": "set REACT_APP_LOCAL=true && set WATCHPACK_POLLING=true && react-scripts start",
+    "start-local2": "set REACT_APP_LOCAL=true && set REACT_APP_LOCAL_LOGIN=true && set WATCHPACK_POLLING=true && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

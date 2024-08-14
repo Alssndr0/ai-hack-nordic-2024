@@ -15,7 +15,7 @@ async function fetch_from_agent(method: string, path: string, body?: string): Pr
     const URL = `${base_URL}/${path}`;
     const headers = new Headers({
         'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
     });
     if (csrf) {
         headers.append('x-curity-csrf', csrf);

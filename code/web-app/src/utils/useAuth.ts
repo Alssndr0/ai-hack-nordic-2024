@@ -34,10 +34,10 @@ const useAuth = () => {
     // Check login state on pageload. 
     useEffect(() => { 
         (async () => {
-            if(process.env, process.env.REACT_APP_LOCAL) {
+            if(process.env && process.env.REACT_APP_LOCAL && !process.env.REACT_APP_LOCAL_LOGIN) {
                 setIsLoggedIn(true)
                 setCsrf("csrf")
-                setUserInfo({})
+                setUserInfo({given_name: "given name"})
                 setGetLoginStateComplete(true)
                 return
             }
