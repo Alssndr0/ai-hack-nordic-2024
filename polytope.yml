@@ -221,6 +221,18 @@ modules:
       password: password
       script: |
         CREATE COLLECTION main._default.items IF NOT EXISTS;
+        CREATE COLLECTION main._default.business_onboarding_info IF NOT EXISTS;
+        CREATE COLLECTION main._default.businesses IF NOT EXISTS;
+        CREATE COLLECTION main._default.constraints IF NOT EXISTS;
+        CREATE COLLECTION main._default.employee_locations IF NOT EXISTS;
+        CREATE COLLECTION main._default.employee_roles IF NOT EXISTS;
+        CREATE COLLECTION main._default.employees IF NOT EXISTS;
+        CREATE COLLECTION main._default.schedules IF NOT EXISTS;
+        CREATE COLLECTION main._default.shifts IF NOT EXISTS;
+        CREATE COLLECTION main._default.location_opening_hours IF NOT EXISTS;
+        CREATE COLLECTION main._default.location_roles IF NOT EXISTS;
+        CREATE COLLECTION main._default.locations IF NOT EXISTS;
+        CREATE COLLECTION main._default.staff_requirements IF NOT EXISTS;
         CREATE PRIMARY INDEX IF NOT EXISTS ON main;
         CREATE PRIMARY INDEX IF NOT EXISTS ON main._default.items;
       retries: 20
