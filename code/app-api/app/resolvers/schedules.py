@@ -4,6 +4,7 @@ from typing import AsyncGenerator, List
 import strawberry
 import uuid
 import logging
+from datetime import date
 from .. import couchbase as cb, env
 from ..auth import IsAuthenticated
 from .employees import list_of_all_employees
@@ -23,6 +24,24 @@ def list_schedules():
         f"SELECT employee_id, role_id, shift_id, META().id FROM {env.get_couchbase_bucket()}._default.schedules"
     )
     return [Schedule(**r) for r in result]
+
+def get_schedules(year=2024, week=1):
+    # Calculate the start and end dates of the specified ISO week
+    start_date = date.fromisocalendar(year, week, 1)  # Monday of the ISO week
+    end_date = date.fromisocalendar(year, week, 7)    # Sunday of the ISO week
+
+    query = f"""
+    SELECT e.first_name, e.last_name, sh.date, sh.shift_name, sh.start_time, sh.end_time
+    FROM {env.get_couchbase_bucket()}._default.employees AS e
+    JOIN {env.get_couchbase_bucket()}._default.schedules AS sc ON e.employee_id = sc.employee_id
+    JOIN {env.get_couchbase_bucket()}._default.shifts AS sh ON sc.shift_id = sh.shift_id
+    WHERE sh.date BETWEEN '{start_date}' AND '{end_date}'
+    """
+    result = cb.exec(
+        env.get_couchbase_conf(),
+        query
+    )
+    return result
  
 @strawberry.type
 class Schedule:
@@ -31,6 +50,16 @@ class Schedule:
     role_id: str
     shift_id: str
  
+
+@strawberry.type
+class ScheduleWeek:
+    first_name: str
+    last_name: str
+    date: str
+    shift_name: str
+    start_time: str
+    end_time: str
+
 
 @strawberry.type
 class Query:
@@ -45,6 +74,12 @@ class Query:
             cb.DocRef(bucket=env.get_couchbase_bucket(), collection='schedules', key=id)
         )
         return Schedule(id=id, **result.content_as[dict])
+
+    @strawberry.field
+    def get_schedules_by_week(self, year: int = 2024, week: int = 1) -> List[ScheduleWeek]:
+        results = get_schedules(year, week)
+        print('HERE : ', results)
+        return [ScheduleWeek(**r) for r in results]
  
 @strawberry.type
 class Mutation:
