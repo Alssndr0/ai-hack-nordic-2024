@@ -173,7 +173,7 @@ const EmployeeTile: React.FC<EmployeeProps & { onClick: () => void }> = ({ first
 
 
 // EmployeeList Component
-const EmployeeList: React.FC = () => {
+export default function EmployeeList() {
     const [selectedEmployee, setSelectedEmployee] = useState<EmployeeProps | null>(null);
     const [modalOpened, setModalOpened] = useState<boolean>(false);
     const [opened, setOpened] = useState(false);
@@ -420,23 +420,6 @@ const styles: { [key: string]: React.CSSProperties } = {
         marginTop: '20px',
     },
 };
-
-
-
-
-// Default export of the EmployeeList component
-export default EmployeeList;
-
-
-
-// Render EmployeeList Component
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
-root.render(
-  <React.StrictMode>
-    <EmployeeList />
-  </React.StrictMode>
-);
-
 
 // import React, { useState } from 'react';
 // import { Button, Modal, TextInput, Select, Textarea, NumberInput, Box, Table } from '@mantine/core';
