@@ -24,6 +24,7 @@ class EmployeeLocation:
 
 @strawberry.input
 class EmployeeLocationCreateInput:
+    #id: str
     employee_id: str
     location_id: str
 

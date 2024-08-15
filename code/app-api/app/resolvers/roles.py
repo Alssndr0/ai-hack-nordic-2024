@@ -24,6 +24,7 @@ class Role:
 
 @strawberry.input
 class RoleCreateInput:
+    id: str
     name: str
     description: str
 
@@ -47,22 +48,23 @@ class Mutation:
     async def roles_create(self, roles: List[RoleCreateInput]) -> List[Role]:
         created_roles = []
         for role in roles:
-            id = str(uuid.uuid1())
+            key_id = str(uuid.uuid1())
             cb.insert(env.get_couchbase_conf(),
                       cb.DocSpec(bucket=env.get_couchbase_bucket(),
                                  collection='roles',
-                                 key=id,
+                                 key=key_id,
                                  data={
-                                     'name': role.name,
-                                     'description': role.description
+                                    'id' : role['id'],
+                                     'name': role['name'],
+                                     'description': role['description']
                                  }))
-            created_role = Role(
-                id=id,
-                name=role.name,
-                description=role.description
-            )
-            created_roles.append(created_role)
-        return created_roles
+            # created_role = Role(
+            #     id=id,
+            #     name=role.name,
+            #     description=role.description
+            # )
+            # created_roles.append(created_role)
+        return True
 
     @strawberry.field(permission_classes=[IsAuthenticated])
     async def roles_remove(self, ids: List[str]) -> List[str]:

@@ -24,6 +24,7 @@ class EmployeeRole:
 
 @strawberry.input
 class EmployeeRoleCreateInput:
+    #id: str
     employee_id: str
     role_id: str
 

@@ -45,7 +45,7 @@ modules:
       id: app-api
       image: gcr.io/arched-inkwell-420116/python:3.11.8-slim-bookworm
       code: { type: host, path: ./code/app-api }
-      cmd: ./bin/run
+      cmd: bash -c "chmod +x ./bin/* && ./bin/run" # makes the bin run file executable
       restart: { policy: on-failure }
       services: 
         - { id: "app-api", ports: [{protocol: http, port: 4000}] }
@@ -59,6 +59,7 @@ modules:
         - { name: HTTP_GRAPHQL_UI, value: false } 
         - { name: AUTH_OIDC_AUDIENCE, value: http://localhost/api }
         - { name: AUTH_OIDC_JWK_URL, value: https://curity:8443/oauth/v2/oauth-anonymous/jwks }
+        - {name: OPENAI_API_KEY, value: ...}
       mounts:
         - { path: /root/.cache/, source: { type: volume, scope: project, id: dependency-cache }}
 
@@ -69,7 +70,7 @@ modules:
       id: web-app 
       image: gcr.io/arched-inkwell-420116/node:21.7.0-slim
       code: { type: host, path: ./code/web-app }
-      cmd: ./bin/run
+      cmd: bash -c "chmod +x ./bin/* && ./bin/run" # makes the bin run file executable
       env:
         - { name: PORT, value: 3000 } 
         - { name: HOST, value: 0.0.0.0 } 
@@ -220,6 +221,19 @@ modules:
       password: password
       script: |
         CREATE COLLECTION main._default.items IF NOT EXISTS;
+        CREATE COLLECTION main._default.business_onboarding_info IF NOT EXISTS;
+        CREATE COLLECTION main._default.businesses IF NOT EXISTS;
+        CREATE COLLECTION main._default.constraints IF NOT EXISTS;
+        CREATE COLLECTION main._default.employee_locations IF NOT EXISTS;
+        CREATE COLLECTION main._default.employee_roles IF NOT EXISTS;
+        CREATE COLLECTION main._default.employees IF NOT EXISTS;
+        CREATE COLLECTION main._default.schedules IF NOT EXISTS;
+        CREATE COLLECTION main._default.shifts IF NOT EXISTS;
+        CREATE COLLECTION main._default.location_opening_hours IF NOT EXISTS;
+        CREATE COLLECTION main._default.location_roles IF NOT EXISTS;
+        CREATE COLLECTION main._default.locations IF NOT EXISTS;
+        CREATE COLLECTION main._default.staff_requirements IF NOT EXISTS;
+        CREATE COLLECTION main._default.roles IF NOT EXISTS;
         CREATE PRIMARY INDEX IF NOT EXISTS ON main;
         CREATE PRIMARY INDEX IF NOT EXISTS ON main._default.items;
       retries: 20

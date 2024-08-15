@@ -1,27 +1,30 @@
 import json
 import uuid
-from .resolver.business import Mutation as BusinessMutation
-from .resolver.employees import Mutation as EmployeeMutation
-from .resolver.locations import Mutation as LocationMutation
-from .resolver.location_opening_hours import Mutation as LocationOpeningHoursMutation
-from .resolver.shifts import Mutation as ShiftMutation
-from .resolver.roles import Mutation as RoleMutation
-from .resolver.staff_requirements import Mutation as StaffRequirementMutation
+from .resolvers.businesses import Mutation as BusinessMutation
+from .resolvers.employees import Mutation as EmployeeMutation
+from .resolvers.locations import Mutation as LocationMutation
+from .resolvers.location_opening_hours import Mutation as LocationOpeningHoursMutation
+from .resolvers.location_roles import Mutation as LocationRoles
+from .resolvers.shifts import Mutation as ShiftMutation
+from .resolvers.roles import Mutation as RoleMutation
+from .resolvers.staff_requirements import Mutation as StaffRequirementMutation
 from .context import get_context
+from pydantic import BaseModel
 
-async def load_json(file_path):
-    with open(file_path, 'r') as f:
-        return json.load(f)
 
 async def create_business(business_data):
     # Assuming you have a Mutation for creating business entities
-    await BusinessMutation().businesses_create(businesses=business_data)
+    await BusinessMutation().businesses_create(business=business_data)
 
 async def create_locations(locations_data):
     await LocationMutation().locations_create(locations=locations_data)
 
 async def create_location_opening_hours(opening_hours_data):
     await LocationOpeningHoursMutation().location_opening_hours_create(opening_hours=opening_hours_data)
+
+async def create_location_roles(loc_roles_data):
+    await LocationRoles().location_roles_create(location_roles=loc_roles_data)
+
 
 async def create_shifts(shifts_data):
     await ShiftMutation().shifts_create(shifts=shifts_data)
@@ -32,36 +35,43 @@ async def create_roles(roles_data):
 async def create_staff_requirements(staff_requirements_data):
     await StaffRequirementMutation().staff_requirements_create(staff_requirements=staff_requirements_data)
 
-async def map_json_to_db(file_path):
-    data = await load_json(file_path)
+async def map_json_to_db(data):
+    # data = await load_json(file_path)
 
     # Simulate a context for GraphQL Mutations
     context = await get_context()
-
+    print("data")
     # Create Business (assuming the Mutation is implemented, otherwise skip or handle manually)
     if 'business' in data:
+        print('business done')
         await create_business(data.get('business'))
 
     # Create Locations
     if 'locations' in data:
-        await create_locations(locations_data=[LocationMutation(**loc) for loc in data.get('locations', [])])
+        # print(data.get('locations', []))
+        await create_locations(locations_data=data.get('locations', []))
 
     # Create Location Opening Hours
-    if 'location_opening_hours' in data:
-        await create_location_opening_hours(opening_hours_data=[LocationOpeningHoursMutation(**loh) for loh in data.get('location_opening_hours', [])])
+    if 'locationOpeningHours' in data:
+        await create_location_opening_hours(opening_hours_data = data.get('locationOpeningHours', []))
+
+    # Create Location Opening Hours
+    if 'locationRoles' in data:
+        await create_location_roles(loc_roles_data = data.get('locationRoles', []))
+
 
     # Create Shifts
     if 'shifts' in data:
-        await create_shifts(shifts_data=[ShiftMutation(**shift) for shift in data.get('shifts', [])])
+        await create_shifts(shifts_data=data.get('shifts', []))
 
     # Create Roles
     if 'roles' in data:
-        await create_roles(roles_data=[RoleMutation(**role) for role in data.get('roles', [])])
+        await create_roles(roles_data=data.get('roles', []))
 
     # Create Staff Requirements
-    if 'staff_requirements' in data:
-        await create_staff_requirements(staff_requirements_data=[StaffRequirementMutation(**sr) for sr in data.get('staff_requirements', [])])
+    if 'staffRequirements' in data:
+        await create_staff_requirements(staff_requirements_data=data.get('staffRequirements', []))
 
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(map_json_to_db('data.json'))
+# if __name__ == "__main__":
+#     import asyncio
+#     asyncio.run(map_json_to_db('data.json'))

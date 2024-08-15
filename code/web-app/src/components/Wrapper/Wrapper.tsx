@@ -8,6 +8,7 @@ export interface WrapperProps {
     userInfo: any,
     logout: () => void;
     onFinish?: () => void;
+    csrf?: string;
 }
 
 interface MenuItemProps {
@@ -70,7 +71,7 @@ const Wrapper: React.FC<WrapperProps> = (props: WrapperProps) => {
 
                         <div style={{ flex: 1 }}>
                             <Text size="sm" fw={500}>
-                                Firstname Lastname
+                                {props.userInfo.given_name}
                             </Text>
 
                             <Text c="dimmed" size="xs">
@@ -83,7 +84,7 @@ const Wrapper: React.FC<WrapperProps> = (props: WrapperProps) => {
                 </UnstyledButton>
                 </Menu.Target>
                 <Menu.Dropdown>
-                    <Menu.Item leftSection={<IconDoorExit />}>Logout</Menu.Item>
+                    <Menu.Item onClick={() => props.logout()} leftSection={<IconDoorExit />}>Logout</Menu.Item>
                 </Menu.Dropdown>
             </Menu>
             </Flex>

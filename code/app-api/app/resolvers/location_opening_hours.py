@@ -26,6 +26,7 @@ class LocationOpeningHours:
 
 @strawberry.input
 class LocationOpeningHoursCreateInput:
+    id: str
     location_id: str
     day_of_week: int
     open_time: str
@@ -51,26 +52,27 @@ class Mutation:
     async def location_opening_hours_create(self, opening_hours: List[LocationOpeningHoursCreateInput]) -> List[LocationOpeningHours]:
         created_opening_hours = []
         for hour in opening_hours:
-            id = str(uuid.uuid1())
+            key_id = str(uuid.uuid1())
             cb.insert(env.get_couchbase_conf(),
                       cb.DocSpec(bucket=env.get_couchbase_bucket(),
                                  collection='location_opening_hours',
-                                 key=id,
+                                 key=key_id,
                                  data={
-                                     'location_id': hour.location_id,
-                                     'day_of_week': hour.day_of_week,
-                                     'open_time': hour.open_time,
-                                     'close_time': hour.close_time
+                                    'id': hour['id'],
+                                     'location_id': hour['location_id'],
+                                     'day_of_week': hour['day_of_week'],
+                                     'open_time': hour['open_time'],
+                                     'close_time': hour['close_time']
                                  }))
-            created_hour = LocationOpeningHours(
-                id=id,
-                location_id=hour.location_id,
-                day_of_week=hour.day_of_week,
-                open_time=hour.open_time,
-                close_time=hour.close_time
-            )
-            created_opening_hours.append(created_hour)
-        return created_opening_hours
+            # created_hour = LocationOpeningHours(
+            #     id=hour['id'],
+            #     location_id=hour['location_id'],
+            #     day_of_week=hour['day_of_week'],
+            #     open_time=hour['open_time'],
+            #     close_time=hour['close_time']
+            # )
+            # created_opening_hours.append(created_hour)
+        return True
 
     @strawberry.field(permission_classes=[IsAuthenticated])
     async def location_opening_hours_remove(self, ids: List[str]) -> List[str]:

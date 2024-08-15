@@ -24,7 +24,7 @@ function replace_http_with_ws (url: string) : string {
     return url.replace('http', 'ws');
 }
 
-function create_http_link(): HttpLink {
+export function create_http_link(): HttpLink {
     return new HttpLink({
         uri: config.api_base_url,
     });

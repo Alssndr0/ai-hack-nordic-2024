@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 def list_of_all_employees():
     result = cb.exec(
         env.get_couchbase_conf(),
-        f"SELECT name, email, address, date_of_birth, emergency_contact, META().id FROM {env.get_couchbase_bucket}._default.employees"
+        f"SELECT employee_id, first_name, last_name, email, address, date_of_birth, emergency_contact, date_hired, contracted_hours, META().id FROM {env.get_couchbase_bucket()}._default.employees"
     )
     return [Employee(**r) for r in result]
 
@@ -30,6 +30,7 @@ def employee_info_by_id(id: str):
 @strawberry.type
 class Employee:
     id: str
+    employee_id: str
     first_name: str 
     last_name: str 
     email: str
@@ -42,6 +43,8 @@ class Employee:
 
 @strawberry.input
 class EmployeeCreateInput:
+#    id: str
+    employee_id: str
     first_name: str 
     last_name: str 
     email: str
@@ -84,6 +87,7 @@ class Mutation:
                     collection = 'employees',
                     key = id,
                     data = {
+                        'employee_id' : employee.employee_id,
                         'first_name' : employee.first_name,
                         'last_name' : employee.last_name,
                         'email' : employee.email,
@@ -98,6 +102,7 @@ class Mutation:
 
             created_employee = Employee(
                 id = id,
+                employee_id = employee.employee_id,
                 first_name = employee.first_name,
                 last_name = employee,
                 email = employee.email,

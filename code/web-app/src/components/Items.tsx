@@ -4,8 +4,7 @@ import { useQuery, useMutation } from '@apollo/client'
 import {
   ITEMS,
   ITEMS_CREATE,
-  ITEMS_REMOVE,
-  ITEMS_CREATED,
+  ITEMS_REMOVE
 } from '../graphql/items'
 
 interface Item {
@@ -23,22 +22,6 @@ const Items: React.FC = () => {
   const [addItem] = useMutation(ITEMS_CREATE, { errorPolicy: 'all' })
   const [removeItem] = useMutation(ITEMS_REMOVE)
 
-  useEffect(() => {
-    subscribeToMore({
-      document: ITEMS_CREATED,
-      updateQuery: (prev, { subscriptionData }) => {
-        if (!subscriptionData.data) return prev
-        const newItem = subscriptionData.data.itemsCreated
-
-        if (prev.items.some((item: Item) => item.id === newItem.id)) {
-          return prev
-        }
-        return Object.assign({}, prev, {
-          items: [...prev.items, newItem],
-        })
-      },
-    })
-  }, [subscribeToMore])
 
   if (loading)
     return (

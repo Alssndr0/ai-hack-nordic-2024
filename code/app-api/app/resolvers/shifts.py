@@ -12,13 +12,14 @@ logger = logging.getLogger(__name__)
 def list_shifts():
     result = cb.exec(
         env.get_couchbase_conf(),
-        f"SELECT shift_name, location_id, start_time, end_time, date, META().id FROM {env.get_couchbase_bucket()}._default.shifts"
+        f"SELECT shift_id, shift_name, location_id, start_time, end_time, date, META().id FROM {env.get_couchbase_bucket()}._default.shifts"
     )
     return [Shift(**r) for r in result]
 
 @strawberry.type
 class Shift:
     id: str
+    shift_id: str
     shift_name: str
     location_id: str
     start_time: str
@@ -27,6 +28,8 @@ class Shift:
 
 @strawberry.input
 class ShiftCreateInput:
+    id : str
+    shift_id: str
     shift_name: str
     location_id: str
     start_time: str
@@ -53,28 +56,29 @@ class Mutation:
     async def shifts_create(self, shifts: List[ShiftCreateInput]) -> List[Shift]:
         created_shifts = []
         for shift in shifts:
-            id = str(uuid.uuid1())
+            key_id = str(uuid.uuid1())
             cb.insert(env.get_couchbase_conf(),
                       cb.DocSpec(bucket=env.get_couchbase_bucket(),
                                  collection='shifts',
-                                 key=id,
+                                 key=key_id,
                                  data={
-                                     'shift_name': shift.shift_name,
-                                     'location_id': shift.location_id,
-                                     'start_time': shift.start_time,
-                                     'end_time': shift.end_time,
-                                     'date': shift.date
+                                    'shift_id': shift['id'],
+                                     'shift_name': shift['shift_name'],
+                                     'location_id': shift['location_id'],
+                                     'start_time': shift['start_time'],
+                                     'end_time': shift['end_time'],
+                                     'date': shift['date']
                                  }))
-            created_shift = Shift(
-                id=id,
-                shift_name=shift.shift_name,
-                location_id=shift.location_id,
-                start_time=shift.start_time,
-                end_time=shift.end_time,
-                date=shift.date
-            )
-            created_shifts.append(created_shift)
-        return created_shifts
+            # created_shift = Shift(
+            #     id=id,
+            #     shift_name=shift.shift_name,
+            #     location_id=shift.location_id,
+            #     start_time=shift.start_time,
+            #     end_time=shift.end_time,
+            #     date=shift.date
+            # )
+            # created_shifts.append(created_shift)
+        return True
 
     @strawberry.field(permission_classes=[IsAuthenticated])
     async def shifts_remove(self, ids: List[str]) -> List[str]:

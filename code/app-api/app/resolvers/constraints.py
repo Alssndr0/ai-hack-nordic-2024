@@ -6,13 +6,14 @@ import uuid
 import logging
 from .. import couchbase as cb, env
 from ..auth import IsAuthenticated
+from ..types import CreateConstraintsResponse
 
 logger = logging.getLogger(__name__)
 
 def list_constraints():
     result = cb.exec(
         env.get_couchbase_conf(),
-        f"SELECT employee_id, location_id, is_available, date, day, start_time, end_time, details, META().id FROM {env.get_couchbase_bucket()}._default.constraints"
+        f"SELECT employee_id, shift_id, is_available, META().id FROM {env.get_couchbase_bucket()}._default.constraints"
     )
     return [Constraint(**r) for r in result]
 
@@ -20,24 +21,21 @@ def list_constraints():
 class Constraint:
     id: str
     employee_id: str
-    location_id: str
+    shift_id: str
     is_available: bool
-    date: str
-    day: int
-    start_time: str
-    end_time: str
-    details: str
+
+#    location_id: str    
+#    date: str
+#    day: int
+#    start_time: str
+#    end_time: str
+#    details: str
 
 @strawberry.input
 class ConstraintCreateInput:
     employee_id: str
-    location_id: str
+    shift_id: str
     is_available: bool
-    date: str
-    day: int
-    start_time: str
-    end_time: str
-    details: str
 
 @strawberry.type
 class Query:
@@ -66,27 +64,22 @@ class Mutation:
                                  key=id,
                                  data={
                                      'employee_id': constraint.employee_id,
-                                     'location_id': constraint.location_id,
-                                     'is_available': constraint.is_available,
-                                     'date': constraint.date,
-                                     'day': constraint.day,
-                                     'start_time': constraint.start_time,
-                                     'end_time': constraint.end_time,
-                                     'details': constraint.details
+                                     'shift_id': constraint.shift_id,  
+                                     'is_available': constraint.is_available
+ 
                                  }))
             created_constraint = Constraint(
                 id=id,
                 employee_id=constraint.employee_id,
-                location_id=constraint.location_id,
-                is_available=constraint.is_available,
-                date=constraint.date,
-                day=constraint.day,
-                start_time=constraint.start_time,
-                end_time=constraint.end_time,
-                details=constraint.details
+                shift_id=constraint.shift_id,
+                is_available=constraint.is_available
             )
             created_constraints.append(created_constraint)
         return created_constraints
+        # return CreateConstraintsResponse(
+        #     message=f"Constraints created succesfully for employee id {constraint.employee_id}",
+        #     employee_id=constraint.employee_id
+        # )
 
     @strawberry.field(permission_classes=[IsAuthenticated])
     async def constraints_remove(self, ids: List[str]) -> List[str]:

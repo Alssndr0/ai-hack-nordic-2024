@@ -19,8 +19,8 @@ const Authenticated: React.FC<AuthenticatedProps> = ({ userInfo, logout, csrf })
     const [isSetup, setIsSetup] = useState(false);
     return (
         <ApolloProvider client={create_api_client(csrf, on_graphql_error)}>
-            {!isSetup && <Onboarding onFinish={() => setIsSetup(true)} logout={logout} userInfo={userInfo} />}
-            {isSetup && <Wrapper logout={logout} userInfo={userInfo} />}
+            {!isSetup && <Onboarding csrf={csrf} onFinish={() => setIsSetup(true)} logout={logout} userInfo={userInfo} />}
+            {isSetup && <Wrapper csrf={csrf} logout={logout} userInfo={userInfo} />}
         </ApolloProvider>
     )
 } 
