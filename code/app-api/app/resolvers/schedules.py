@@ -31,10 +31,11 @@ def get_schedules(year=2024, week=1):
     end_date = date.fromisocalendar(year, week, 7)    # Sunday of the ISO week
 
     query = f"""
-    SELECT e.first_name, e.last_name, sh.date, sh.shift_name, sh.start_time, sh.end_time
+    SELECT e.first_name, e.last_name, sh.date, sh.shift_name, sh.start_time, sh.end_time, ro.name AS role_name
     FROM {env.get_couchbase_bucket()}._default.employees AS e
     JOIN {env.get_couchbase_bucket()}._default.schedules AS sc ON e.employee_id = sc.employee_id
     JOIN {env.get_couchbase_bucket()}._default.shifts AS sh ON sc.shift_id = sh.shift_id
+    JOIN {env.get_couchbase_bucket()}._default.roles AS ro ON sc.role_id = ro.id
     WHERE sh.date BETWEEN '{start_date}' AND '{end_date}'
     """
     result = cb.exec(
@@ -59,6 +60,7 @@ class ScheduleWeek:
     shift_name: str
     start_time: str
     end_time: str
+    role_name: str
 
 
 @strawberry.type
