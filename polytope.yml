@@ -45,7 +45,7 @@ modules:
       id: app-api
       image: gcr.io/arched-inkwell-420116/python:3.11.8-slim-bookworm
       code: { type: host, path: ./code/app-api }
-      cmd: ./bin/run
+      cmd: bash -c "chmod +x ./bin/* && ./bin/run" # makes the bin run file executable
       restart: { policy: on-failure }
       services: 
         - { id: "app-api", ports: [{protocol: http, port: 4000}] }
@@ -70,7 +70,7 @@ modules:
       id: web-app 
       image: gcr.io/arched-inkwell-420116/node:21.7.0-slim
       code: { type: host, path: ./code/web-app }
-      cmd: ./bin/run
+      cmd: bash -c "chmod +x ./bin/* && ./bin/run" # makes the bin run file executable
       env:
         - { name: PORT, value: 3000 } 
         - { name: HOST, value: 0.0.0.0 } 
