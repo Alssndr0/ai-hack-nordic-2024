@@ -13,9 +13,9 @@ class Mutation:
     @strawberry.mutation
     async def onboard_employee(self, input: EmployeeOnboardingInput, info: Info) -> OnboardEmployeeResponse:
         # Insert employee details
-        employee_id = str(uuid.uuid4())
+        #employee_id = str(uuid.uuid4())
         employee_input = EmployeeCreateInput(
-            #id=employee_id,
+            employee_id=input.employee_id,
             first_name=input.first_name,
             last_name=input.last_name,
             email=input.email,
@@ -31,19 +31,19 @@ class Mutation:
 
         # Insert employee locations
         employee_location_inputs = [
-            EmployeeLocationCreateInput(employee_id=employee_id, location_id=location_id)
+            EmployeeLocationCreateInput(employee_id=input.employee_id, location_id=location_id)
             for location_id in input.locations
         ]
         await EmployeeLocationMutation().employee_locations_create(employee_location_inputs)
 
         # Insert employee roles
         employee_role_inputs = [
-            EmployeeRoleCreateInput(employee_id=employee_id, role_id=role_id)
+            EmployeeRoleCreateInput(employee_id=input.employee_id, role_id=role_id)
             for role_id in input.roles
         ]
         await EmployeeRoleMutation().employee_roles_create(employee_role_inputs)
 
         return OnboardEmployeeResponse(
             message=f"Employee {input.first_name + ' ' + input.last_name} onboarded successfully",
-            employee_id=employee_id
+            employee_id=input.employee_id
         )

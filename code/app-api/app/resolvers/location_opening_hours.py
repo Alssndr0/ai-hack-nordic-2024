@@ -64,15 +64,15 @@ class Mutation:
                                      'open_time': hour['open_time'],
                                      'close_time': hour['close_time']
                                  }))
-            created_hour = LocationOpeningHours(
-                id=id,
-                location_id=hour.location_id,
-                day_of_week=hour.day_of_week,
-                open_time=hour.open_time,
-                close_time=hour.close_time
-            )
-            created_opening_hours.append(created_hour)
-        return created_opening_hours
+            # created_hour = LocationOpeningHours(
+            #     id=hour['id'],
+            #     location_id=hour['location_id'],
+            #     day_of_week=hour['day_of_week'],
+            #     open_time=hour['open_time'],
+            #     close_time=hour['close_time']
+            # )
+            # created_opening_hours.append(created_hour)
+        return True
 
     @strawberry.field(permission_classes=[IsAuthenticated])
     async def location_opening_hours_remove(self, ids: List[str]) -> List[str]:

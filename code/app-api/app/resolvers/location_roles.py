@@ -45,7 +45,7 @@ class Query:
 @strawberry.type
 class Mutation:
     @strawberry.field(permission_classes=[IsAuthenticated])
-    async def location_roles_create(self, location_roles: List[LocationRoleCreateInput]) -> List[LocationRole]:
+    async def location_roles_create(self, location_roles: List[LocationRoleCreateInput]) -> bool:
         created_location_roles = []
         for location_role in location_roles:
             id = str(uuid.uuid1())
@@ -54,16 +54,16 @@ class Mutation:
                                  collection='location_roles',
                                  key=id,
                                  data={
-                                     'location_id': location_role.location_id,
-                                     'role_id': location_role.role_id
+                                     'location_id': location_role['location_id'],
+                                     'role_id': location_role['role_id']
                                  }))
-            created_location_role = LocationRole(
-                id=id,
-                location_id=location_role.location_id,
-                role_id=location_role.role_id
-            )
-            created_location_roles.append(created_location_role)
-        return created_location_roles
+            # created_location_role = LocationRole(
+            #     id=id,
+            #     location_id=location_role.location_id,
+            #     role_id=location_role.role_id
+            # )
+            # created_location_roles.append(created_location_role)
+        return True
 
     @strawberry.field(permission_classes=[IsAuthenticated])
     async def location_roles_remove(self, ids: List[str]) -> List[str]:

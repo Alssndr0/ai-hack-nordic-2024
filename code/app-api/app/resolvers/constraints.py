@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def list_constraints():
     result = cb.exec(
         env.get_couchbase_conf(),
-        f"SELECT employee_id, location_id, is_available, date, day, start_time, end_time, details, META().id FROM {env.get_couchbase_bucket()}._default.constraints"
+        f"SELECT employee_id, shift_id, is_available, META().id FROM {env.get_couchbase_bucket()}._default.constraints"
     )
     return [Constraint(**r) for r in result]
 

@@ -12,13 +12,14 @@ logger = logging.getLogger(__name__)
 def list_shifts():
     result = cb.exec(
         env.get_couchbase_conf(),
-        f"SELECT shift_name, location_id, start_time, end_time, date, META().id FROM {env.get_couchbase_bucket()}._default.shifts"
+        f"SELECT shift_id, shift_name, location_id, start_time, end_time, date, META().id FROM {env.get_couchbase_bucket()}._default.shifts"
     )
     return [Shift(**r) for r in result]
 
 @strawberry.type
 class Shift:
     id: str
+    shift_id: str
     shift_name: str
     location_id: str
     start_time: str
@@ -28,6 +29,7 @@ class Shift:
 @strawberry.input
 class ShiftCreateInput:
     id : str
+    shift_id: str
     shift_name: str
     location_id: str
     start_time: str
@@ -60,7 +62,7 @@ class Mutation:
                                  collection='shifts',
                                  key=key_id,
                                  data={
-                                    'id': shift['id'],
+                                    'shift_id': shift['id'],
                                      'shift_name': shift['shift_name'],
                                      'location_id': shift['location_id'],
                                      'start_time': shift['start_time'],

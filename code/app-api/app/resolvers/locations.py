@@ -49,7 +49,7 @@ class Query:
 @strawberry.type
 class Mutation:
     @strawberry.field(permission_classes=[IsAuthenticated])
-    async def locations_create(self, locations: List[LocationCreateInput]) -> List[Location]:
+    async def locations_create(self, locations: List[LocationCreateInput]) -> bool:
         created_locations = []
         for location in locations:
             key_id = str(uuid.uuid1())

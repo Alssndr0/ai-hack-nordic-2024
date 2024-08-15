@@ -6,13 +6,14 @@ import uuid
 import logging
 from .. import couchbase as cb, env
 from ..auth import IsAuthenticated
-from .resolvers.employees import list_of_all_employees
-from .resolvers.employee_roles import list_employee_roles
-from .resolvers.constraints import list_constraints
-from .resolvers.staff_requirements import list_staff_requirements
-from .resolvers.shifts import list_shifts
+from .employees import list_of_all_employees
+from .employee_roles import list_employee_roles
+from .constraints import list_constraints
+from .staff_requirements import list_staff_requirements
+from .shifts import list_shifts
 from ..scheduler import assign_roles_by_shift
- 
+from ..types import ScheduleCreateInput
+
 logger = logging.getLogger(__name__)
  
  
@@ -30,12 +31,7 @@ class Schedule:
     role_id: str
     shift_id: str
  
-@strawberry.input
-class ScheduleCreateInput:
-    employee_id: str
-    role_id: str
-    shift_id: str
- 
+
 @strawberry.type
 class Query:
     @strawberry.field
@@ -55,13 +51,17 @@ class Mutation:
     @strawberry.field(permission_classes=[IsAuthenticated])
     async def schedules_create(self) -> List[Schedule]:
         shifts = list_shifts()
-        staff_requirements = list_staff_requirements
-        employees = list_of_all_employees
-        constraints = list_constraints
-        employee_roles = list_employee_roles
+        staff_requirements = list_staff_requirements()
+        employees = list_of_all_employees()
+        
+        constraints = list_constraints()
+        employee_roles = list_employee_roles()
         schedules = assign_roles_by_shift(shifts, staff_requirements, employees, constraints, employee_roles)
         created_schedules = []
+        print('outside the schedule loop!')
+        print(schedules)
         for schedule in schedules:
+            
             id = str(uuid.uuid1())
             cb.insert(env.get_couchbase_conf(),
                       cb.DocSpec(bucket=env.get_couchbase_bucket(),

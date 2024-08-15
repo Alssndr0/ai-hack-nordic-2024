@@ -47,7 +47,7 @@ class Query:
 @strawberry.type
 class Mutation:
     @strawberry.field(permission_classes=[IsAuthenticated])
-    async def staff_requirements_create(self, staff_requirements: List[StaffRequirementCreateInput]) -> List[StaffRequirement]:
+    async def staff_requirements_create(self, staff_requirements: List[StaffRequirementCreateInput]) -> bool:
         created_staff_requirements = []
         for requirement in staff_requirements:
             key_id = str(uuid.uuid1())
@@ -61,14 +61,14 @@ class Mutation:
                                      'role_id': requirement['role_id'],
                                      'employees_required': requirement['employees_required']
                                  }))
-            created_staff_requirement = StaffRequirement(
-                id=id,
-                shift_id=requirement.shift_id,
-                role_id=requirement.role_id,
-                employees_required=requirement.employees_required
-            )
-            created_staff_requirements.append(created_staff_requirement)
-        return created_staff_requirements
+            # created_staff_requirement = StaffRequirement(
+            #     id=id,
+            #     shift_id=requirement.shift_id,
+            #     role_id=requirement.role_id,
+            #     employees_required=requirement.employees_required
+            # )
+            # created_staff_requirements.append(created_staff_requirement)
+        return True
 
     @strawberry.field(permission_classes=[IsAuthenticated])
     async def staff_requirements_remove(self, ids: List[str]) -> List[str]:

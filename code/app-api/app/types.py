@@ -10,6 +10,7 @@ class Message:
     
 @strawberry.input
 class EmployeeOnboardingInput:
+    employee_id: str
     first_name: str
     last_name: str
     email: str
@@ -109,3 +110,11 @@ class JSONInput:
     roles: List[RoleInput]
     staff_requirements: List[StaffRequirementInput]
     shifts: List[ShiftInput]
+
+
+
+@strawberry.input
+class ScheduleCreateInput:
+    employee_id: str
+    role_id: str
+    shift_id: str
