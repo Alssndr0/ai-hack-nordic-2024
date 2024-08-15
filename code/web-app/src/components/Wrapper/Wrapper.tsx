@@ -73,10 +73,6 @@ const Wrapper: React.FC<WrapperProps> = (props: WrapperProps) => {
                             <Text size="sm" fw={500}>
                                 {props.userInfo.given_name}
                             </Text>
-
-                            <Text c="dimmed" size="xs">
-                                email@mail.com
-                            </Text>
                         </div>
                         
                         <IconChevronRight style={{ width: rem(14), height: rem(14) }} stroke={1.5} />

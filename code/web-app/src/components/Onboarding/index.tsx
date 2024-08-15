@@ -129,8 +129,9 @@ export default function Onboarding(props: WrapperProps) {
             <Text c={color} size={"sm"}>{postMessage}</Text>
         </>
     }
-
+    const [loaderBtn, setLoading] = useState(false);
     const onAccept = async () => {
+        setLoading(true);
         let [chatbot, human] = splitMessages();
         let summarys = chatbot.filter(v => v.includes("```markdown"));
         let summary = getMd(summarys[summarys.length - 1]);
@@ -138,6 +139,7 @@ export default function Onboarding(props: WrapperProps) {
         if(response.data) {
             props.onFinish?.();
         }
+        setLoading(false);
     }
 
     const getMd = (msg: string) => {
@@ -161,7 +163,7 @@ export default function Onboarding(props: WrapperProps) {
                 </Paper>
             </Group>
             })}
-            {finish && <Button className="chat-bubble" radius={"xl"} onClick={onAccept}>Accept summary and finish onboarding!</Button>}
+            {finish && <Button loading={loaderBtn} className="chat-bubble" radius={"xl"} onClick={onAccept}>Accept summary and finish onboarding!</Button>}
         </Stack>
     </Container>
     <Container style={{zIndex: 2}} pos={"fixed"} mx={"auto"} bottom={0} mb={16} left={0} right={0} size="sm">
