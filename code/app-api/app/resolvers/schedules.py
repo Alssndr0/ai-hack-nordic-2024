@@ -43,6 +43,28 @@ def get_schedules(year=2024, week=1):
         query
     )
     return result
+
+def get_schedule_template():
+    # Get the Couchbase bucket name from the environment configuration
+    bucket_name = env.get_couchbase_bucket()
+ 
+    # Define the Couchbase N1QL query using the dynamic bucket name
+    query = f"""
+    SELECT loh.day_of_week, loh.open_time, loh.close_time,
+           sh.shift_name, sh.start_time, sh.end_time,
+           r.name AS role_name, sr.employees_required
+    FROM {bucket_name}._default.location_opening_hours AS loh
+    JOIN {bucket_name}._default.shifts AS sh ON loh.location_id = sh.location_id
+    JOIN {bucket_name}._default.staff_requirements AS sr ON sh.shift_id = sr.shift_id
+    JOIN {bucket_name}._default.roles AS r ON sr.role_id = r.id
+    """
+ 
+    # Execute the query against the Couchbase database
+    result = cb.exec(
+        env.get_couchbase_conf(),
+        query
+    )
+    return result
  
 @strawberry.type
 class Schedule:
@@ -62,6 +84,21 @@ class ScheduleWeek:
     end_time: str
     role_name: str
 
+@strawberry.type
+class ScheduleTemplate:
+    day_of_week: str
+    open_time: str
+    close_time: str
+    shift_name: str
+    start_time: str
+    end_time: str
+    role_name: str
+    employees_required: str
+
+    
+
+
+
 
 @strawberry.type
 class Query:
@@ -80,8 +117,14 @@ class Query:
     @strawberry.field
     def get_schedules_by_week(self, year: int = 2024, week: int = 1) -> List[ScheduleWeek]:
         results = get_schedules(year, week)
-        print('HERE : ', results)
+        #print('HERE : ', results)
         return [ScheduleWeek(**r) for r in results]
+
+    @strawberry.field
+    def schedule_template(self,) -> List[ScheduleTemplate]:
+        results = get_schedule_template()
+        #print('HERE : ', results)
+        return [ScheduleTemplate(**r) for r in results]
  
 @strawberry.type
 class Mutation:
