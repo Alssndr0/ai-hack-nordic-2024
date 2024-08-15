@@ -26,7 +26,7 @@ const LoggingOut = () => (
     </Center>
 );
 
-const WaitingForUser = () => (
+export const WaitingForUser = () => (
     <Center w={"100vw"} h={"100vh"}>
         <Paper withBorder p={"xl"}>
             <Flex direction={"column"} align={"center"}>

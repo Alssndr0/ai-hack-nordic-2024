@@ -13,7 +13,8 @@ const Anonymous: React.FC<AnonymousProps> = ({ login, loggingIn }) => {
             <Paper withBorder p={"xl"}>
                 <Title mb={"xl"} ta={"center"} order={2}>Login</Title>
                 <Stack>
-                    <Button loading={loggingIn} onClick={login} leftSection={<IconLogin />}>Login with Cillers</Button>
+                    <Button loading={loggingIn} onClick={login} leftSection={<IconLogin />}>Login As Manager</Button>
+                    <Button loading={loggingIn} onClick={login} leftSection={<IconLogin />}>Login As Employee</Button>
                 </Stack>
             </Paper>
         </Center>

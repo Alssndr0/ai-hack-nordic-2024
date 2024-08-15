@@ -26,18 +26,31 @@ export const CHAT_ONBOARD_ADD = gql`
 
 export const CHAT_ONBOARD_FINISH = gql`
   mutation ChatOnboarding ($human: [String!]!, $chatbot: [String!]!, $summary: String!){
-    convertSummaryToJsonAndPopulateDb(summaryInput: {human: $human, chatbot: $chatbot, summary: $summary})
+    convertSummaryToJsonAndPopulateDb(summaryInput: {human: $human, chatbot: $chatbot, summary: $summary}) {
+      id,
+      status
+    }
   }
 `;
 
-export const ITEMS_REMOVE = gql`
-  mutation ItemsRemove($ids: [String!]!) {
-    itemsRemove(ids: $ids) 
+export const BUSINESS_INFO = gql`
+  query GetBusiness {
+    businessesOnboardingInfo {
+      info,
+      id
+    } 
   }
 `;
 
-export const ITEMS_CREATED = gql`
-  subscription OnItemCreated {
-    itemsCreated { name, id }
+export const CREATE_SCHEDULE = gql`
+  mutation CreateSchedule {
+    schedulesCreate {
+      id,
+      employeeId,
+      roleId,
+      shiftId
+    } 
   }
 `;
+
+
