@@ -22,7 +22,11 @@ from .shifts import  ShiftCreateInput as Shift
 openai_key = os.getenv("OPENAI_API_KEY")  # Ensure you set your OpenAI API key here
 client = OpenAI(api_key= openai_key)
 
-# Define the input model for the GraphQL mutation
+# Define the input/ouput models for the GraphQL mutation
+@strawberry.scalar
+class JSONScalar:
+    serialize = json.dumps
+    parse_value = json.loads
 
 class SummaryInputModel(BaseModel):
     human: List[str]
@@ -35,7 +39,6 @@ class SummaryInput:
     chatbot: List[str]
     summary: str
    
-
 
 @strawberry.type
 class Input:
@@ -55,11 +58,8 @@ class BusinessSchedule(BaseModel):
 class Response:
     status: bool
     id: str
+    json_output: JSONScalar
 
-@strawberry.scalar
-class JSONScalar:
-    serialize = json.dumps
-    parse_value = json.loads
 
 @strawberry.type
 class BusinessInfo:
@@ -139,7 +139,7 @@ class Mutation:
             input_data = parsed_json.get("input", {})
             await map_json_to_db(input_data)
   
-            return Response(status=True, id=key_id)
+            return Response(status=True, id=key_id, json_output= input_data)
 
 
         except Exception as e:

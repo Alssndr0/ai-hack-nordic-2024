@@ -50,7 +50,7 @@ def get_schedule_template():
  
     # Define the Couchbase N1QL query using the dynamic bucket name
     query = f"""
-    SELECT loh.day_of_week, loh.open_time, loh.close_time,
+    SELECT sh.shift_id, loh.day_of_week, loh.open_time, loh.close_time,
            sh.shift_name, sh.start_time, sh.end_time,
            r.name AS role_name, sr.employees_required
     FROM {bucket_name}._default.location_opening_hours AS loh
@@ -86,6 +86,7 @@ class ScheduleWeek:
 
 @strawberry.type
 class ScheduleTemplate:
+    shift_id: str
     day_of_week: str
     open_time: str
     close_time: str
