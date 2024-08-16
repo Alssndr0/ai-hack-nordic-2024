@@ -58,11 +58,10 @@ const Wrapper: React.FC<WrapperProps> = (props: WrapperProps) => {
                     <Stack gap={rem(5)}>
                         <MenuItem label='Schedule' icon={IconCalendarStats} active={location.pathname == "/schedule"} onClick={gotoPage("schedule")} />
                         <MenuItem label='Employees' icon={IconUsers} active={location.pathname == "/employees"} onClick={gotoPage("employees")} />
-                        <MenuItem label='Settings' icon={IconSettings} active={location.pathname == "/settings"} onClick={gotoPage("settings")} />
                     </Stack>
                 </Stack>
                 <Menu>
-                            <Menu.Target>
+                <Menu.Target>
                 <UnstyledButton>
                     <Group p={"lg"}>
                         <Avatar

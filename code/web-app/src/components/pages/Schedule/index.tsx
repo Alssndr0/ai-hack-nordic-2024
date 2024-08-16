@@ -1,4 +1,4 @@
-import { Center, Flex, Group, Paper, rem, Stack, Title, Text, Divider, Select, Box, Avatar, getGradient, useMantineTheme, ColorSwatch } from "@mantine/core";
+import { Center, Flex, Group, Paper, rem, Stack, Title, Text, Divider, Select, Box, Avatar, getGradient, useMantineTheme, ColorSwatch, Tooltip } from "@mantine/core";
 import { Calendar } from "@mantine/dates";
 import "./index.css";
 import { useEffect, useState } from "react";
@@ -236,7 +236,7 @@ export default function Schedule() {
         </Flex>
         <Flex direction={"column"} flex={1} gap={"md"}>
             <Paper radius={"md"} p={"md"} withBorder>
-                <Select onChange={onSelectDayDisplayType} data={[
+                <Select label={"Display days"} onChange={onSelectDayDisplayType} data={[
                     {label: "All days", value: "all"},
                     {label: "Work days", value: "work"},
                     {label: "Mon-Fri", value: "mf"}
@@ -291,15 +291,17 @@ export default function Schedule() {
                                                 {shift.roles.map((role: any) => {
                                                     const grad = roleColors[role.value];
                                                     return <>
-                                                        <Flex direction={"column"} align="strech" flex={"1"}>
+                                                        <Flex direction={"row"} align="strech" flex={"1"}>
                                                             {Array(role.expected).fill(0).map((num: any, i: number) => {
                                                                 return <>
-                                                                    <Group bg={i >= role.amount ? "red" : grad} flex={1}>
-                                                                        {i >= role.amount && <Center w={"100%"}>
-                                                                            <IconAlertCircle color="white" />
-                                                                        </Center>}
-                                                                    </Group>
-                                                                    {i != role.expected-1 && <Divider />}
+                                                                    <Tooltip label={i >= role.amount ? role.value + " Needed" : role.employeeName}>
+                                                                        <Group bg={i >= role.amount ? "red" : grad} flex={1}>
+                                                                            {i >= role.amount && <Center w={"100%"}>
+                                                                                <IconAlertCircle color="white" />
+                                                                            </Center>}
+                                                                        </Group>
+                                                                    </Tooltip>
+                                                                    {i != role.expected-1 && <Divider orientation="vertical" />}
                                                                 </>
                                                             })}
                                                         </Flex>

@@ -18,8 +18,16 @@ function on_graphql_error(messages: string[]) {
 
 const Brancher: React.FC<AuthenticatedProps> = ({ userInfo, logout, csrf }) => {
     const [isSetup, setIsSetup] = useState<boolean|null>(null);
-    const {loading, error, data} = useQuery(BUSINESS_INFO);
-    console.log("data", data)
+    let loading, data: any;
+    let res = useQuery(BUSINESS_INFO, {skip:!!process.env.REACT_APP_LOCAL})
+    if(!process.env.REACT_APP_LOCAL) {
+        data = res.data;
+        loading = res.loading;
+    } else {
+        loading = false;
+        data = {};
+        data.businessesOnboardingInfo = ["TEST"]
+    }
     if(loading) {
         return <WaitingForUser />
     }
