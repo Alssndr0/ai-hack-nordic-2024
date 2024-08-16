@@ -117,25 +117,15 @@ export default function Onboarding(props: WrapperProps) {
     }
 
     const parseMessage = (msg: string, color: string|undefined) => {
-        if(!msg.includes("```markdown")) {
-            return <Text c={color} size={"sm"}>{msg}</Text>
-        }
-        let preMessage = msg.substring(0, msg.indexOf("```markdown"));
-        let postMessage = msg.substring(msg.lastIndexOf("```")+3, msg.length);
-        let md = getMd(msg);
         return <>
-            <Text c={color} size={"sm"}>{preMessage}</Text>
-            <Markdown>{md}</Markdown>
-            <Text c={color} size={"sm"}>{postMessage}</Text>
+            <Markdown>{msg}</Markdown>
         </>
     }
     const [loaderBtn, setLoading] = useState(false);
     const onAccept = async () => {
         setLoading(true);
         let [chatbot, human] = splitMessages();
-        let summarys = chatbot.filter(v => v.includes("```markdown"));
-        let summary = getMd(summarys[summarys.length - 1]);
-        let response = await onboardFinishFn({variables: {chatbot, human, summary}})
+        let response = await onboardFinishFn({variables: {chatbot, human, summary: chatbot[chatbot.length - 1]}})
         if(response.data) {
             props.onFinish?.();
         }
@@ -157,7 +147,7 @@ export default function Onboarding(props: WrapperProps) {
             {messages.map(msg => {
                 const fromUser = msg.from == "user";
                 return <Group key={msg.id} justify={fromUser ? "end" : "start"}>
-                <Paper className="chat-bubble" bg={fromUser ? "green" : undefined} radius={"xl"} withBorder={!fromUser} maw={rem(420)} py={"sm"} px={"xl"}>
+                <Paper style={{color: fromUser ? "white" : undefined}} className="chat-bubble" bg={fromUser ? "green" : undefined} radius={"xl"} withBorder={!fromUser} maw={rem(420)} py={"sm"} px={"lg"}>
                     {msg.msg && parseMessage(msg.msg, fromUser ? "white" : undefined)}
                     {msg.loading && <Loader color="green" size="xs" type="dots" />}
                 </Paper>
