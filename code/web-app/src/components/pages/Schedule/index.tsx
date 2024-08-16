@@ -1,10 +1,12 @@
-import { Center, Flex, Group, Paper, rem, Stack, Title, Text, Divider, Select, Box, Avatar, getGradient, useMantineTheme, ColorSwatch, Tooltip, Skeleton } from "@mantine/core";
+import { Center, Flex, Group, Paper, rem, Stack, Title, Text, Divider, Select, Box, Avatar, getGradient, useMantineTheme, ColorSwatch, Tooltip, Skeleton, Button } from "@mantine/core";
 import { Calendar } from "@mantine/dates";
 import "./index.css";
 import { useEffect, useState } from "react";
 import { getWeek, stringToColour, stringToNumber, timetoMinutes } from "../../../utils/util";
-import { IconAlertCircle, IconUxCircle, IconX } from "@tabler/icons-react";
+import { IconAlertCircle, IconCalendar, IconUxCircle, IconX } from "@tabler/icons-react";
 import dayjs from 'dayjs';
+import { useMutation, useQuery } from "@apollo/client";
+import { CREATE_SCHEDULE, SCHEDULE_QUERY, SCHEDULE_TEMPLATE_QUERY } from "../../../graphql/items";
 
 function getDay(date: Date) {
     const day = date.getDay();
@@ -168,6 +170,81 @@ const test = {
     }
 }
 
+const dayNumToKey: Record<number, string> = {
+    1: "mon",
+    2: "tue",
+    3: "wed",
+    4: "thu",
+    5: "fri",
+    6: "sat",
+    7: "sun",
+}
+
+
+const createSchedule = (template: any, weekData: any[]) => {
+    weekData.forEach(employeeShift => {
+        const dayName = dayNumToKey[new Date(employeeShift.date).getDay()];
+        if(!template[dayName]) return
+        const shift = template[dayName].shifts.find((o: any) => o.start == employeeShift.startTime && o.end == employeeShift.endTime);
+        if(!shift) return;
+        const role = shift.roles.find((r: any) => r.value == employeeShift.roleName);
+        if(!role) return;
+        role.amount ++;
+        role.employees.push({firstName: employeeShift.firstName, lastName: employeeShift.lastName})
+    });
+    console.log("SCHED", template);
+    return template;
+}
+
+const createTemplateStructure = (template: any) => {
+    const obj: any = {};
+    template.forEach((shift: any) => {
+        const day = dayNumToKey[shift.dayOfWeek];
+        let dayObj = obj[day]
+        if(!dayObj) {
+            dayObj = {shifts: []};
+            obj[day] = dayObj;
+        }
+        
+        let shiftObj = dayObj.shifts.find((o: any) => o.start == shift.startTime && o.end == shift.endTime);
+        if(!shiftObj) {
+            shiftObj = {
+                start: shift.startTime,
+                end: shift.endTime,
+                roles: []
+            };
+            dayObj.shifts.push(shiftObj)
+        }
+        let roleObj = shiftObj.roles.find((o: any) => o.value == shift.roleName);
+        if(!roleObj) {
+            roleObj = {
+                value: shift.roleName,
+                employees: [],
+                expected: parseInt(shift.employeesRequired),
+                amount: 0
+            }
+            shiftObj.roles.push(roleObj);
+        } else {
+            throw Error("Role already exist in template!")
+        }
+    })
+
+    return obj;
+}
+
+const getAllUniqueEmployees = (schedule: any) => {
+    const members: string[] = [];
+    Object.values(schedule).forEach((day: any) => {
+        day.shifts.forEach((shift: any) => {
+            shift.roles.forEach((role: any) => {
+                role.employees.forEach((employee: any) => members.push(employee.firstName + " " + employee.lastName));
+            })
+        })
+    })
+
+    return members.filter((value, index, array) => array.indexOf(value) === index);
+}
+
 export default function Schedule() {
     const allDays = [
         {label: "Monday", value: "mon"},
@@ -178,6 +255,7 @@ export default function Schedule() {
         {label: "Saturday", value: "sat"},
         {label: "Sunday", value: "sun"},
     ]
+
 
     const colors = [
         "#F06418",
@@ -193,28 +271,64 @@ export default function Schedule() {
         "#63687C"
     ]
 
-    const template = [{
+    const {loading, error, data: templateData} = useQuery(SCHEDULE_TEMPLATE_QUERY)
+    const [template, _] = useState([{
+        shiftId: "id1",
+        dayOfWeek: 2,
+        startTime: "10:00",
+        endTime: "01:00",
+        roleName: "Chef",
+        employeesRequired: "1"
+    },
+    {
+        shiftId: "id2",
+        dayOfWeek: 2,
+        startTime: "10:00",
+        endTime: "01:00",
+        roleName: "Hostess",
+        employeesRequired: "2"
+    },
+    {
+        shiftId: "id3",
+        dayOfWeek: 3,
+        startTime: "10:00",
+        endTime: "01:00",
+        roleName: "Chef",
+        employeesRequired: "1"
+    }])
 
-    }]
+    const [schedule, __] = useState<any>([{
+        firstName: "John",
+        lastName: "Doe",
+        date: "2024-08-13",
+        startTime: "10:00",
+        endTime: "01:00",
+        roleName: "Chef"
+    }])
 
-    const schedule = [{}]
-
-    useEffect(() => {
-        setWeek(new Date())
-    }, [])
-
-    useEffect(() => {
-        if(!template || !schedule) return;
-        
-    }, [template, schedule])
 
     const [weekInfo, setWeekInfo] = useState<any>(null)
 
     const [roleColors, setRoleColors] = useState<any>([]);
 
     const [hovered, setHovered] = useState<Date | null>(null);
-    const [week, setWeek] = useState<Date | null>(null);
-
+    const [week, setWeek] = useState<Date>(new Date());
+    const {loading: loadingSched, error: errorSched, data: scheduleData, refetch} = useQuery(SCHEDULE_QUERY, {variables:{year: 2024, week: getWeek(week)}})
+    const [createScheduleMut] = useMutation(CREATE_SCHEDULE)
+    const [weekGenerated, setWeekGenerated] = useState(true);
+    
+    useEffect(() => {
+        if(!templateData || !scheduleData || loading) return;
+        const obj = createTemplateStructure(templateData.scheduleTemplate);
+        //const filledObj = obj;
+        const filledObj = createSchedule(obj, scheduleData.getSchedulesByWeek); 
+        if(scheduleData.getSchedulesByWeek.length == 0) {
+            setWeekGenerated(false);
+        }
+        console.log(filledObj)
+        setWeekInfo(filledObj); 
+    }, [templateData, scheduleData, loading])
+    
     useEffect(() => {
         if(!weekInfo) return;
         const roles = getUniqueRoles(weekInfo).sort();
@@ -244,6 +358,12 @@ export default function Schedule() {
         } else if(val == "work") {
             setActiveDays(allDays.filter(v => Object.keys(weekInfo).includes(v.value)))
         }
+    }
+
+    const onGenerateSchedule = async () => {
+        setWeekInfo(null);
+        await createScheduleMut();
+        await refetch();
     }
 
     const [activeDays, setActiveDays] = useState(allDays)
@@ -286,16 +406,11 @@ export default function Schedule() {
                     <Divider />
                     <Title order={6} opacity={0.6}>Employees working this week</Title>
                     {!weekInfo && <Skeleton mih={rem(40)} visible={true} />}
-                    {weekInfo && <>
-                    <Group>
-                        <Avatar />
-                        <Text>Steve carell</Text>
-                    </Group>
-                    <Group>
-                        <Avatar />
-                        <Text>Leslie Knope</Text>
-                    </Group>
-                    </>}
+                    {weekInfo && getAllUniqueEmployees(weekInfo).map(employee => <Group>
+                            <Avatar />
+                            <Text>{employee}</Text>
+                        </Group>)
+                    }
                 </Stack>
             </Paper>
         </Flex>
@@ -309,10 +424,13 @@ export default function Schedule() {
             </Paper>
             <Paper radius={"md"} flex={1} p={"md"} withBorder>
                 <Flex gap={"xs"} h={"100%"} direction={"column"} justify={"stretch"}>
-                    <Stack gap={0} mb={"md"}>
-                        <Title order={2} opacity={0.9}>Week {week ? getWeek(week) : ""}</Title>
-                        <Title order={6} opacity={0.6}>Dec 23 - Dec 31</Title>
-                    </Stack>
+                    <Group align="center" justify="space-between" w={"100%"}>
+                        <Stack gap={0} mb={"md"}>
+                            <Title order={2} opacity={0.9}>Week {week ? getWeek(week) : ""} {!weekGenerated  && "(Not Generated)"}</Title>
+                            <Title order={6} opacity={0.6}>Dec 23 - Dec 31</Title>
+                        </Stack>
+                        <Button onClick={onGenerateSchedule} leftSection={<IconCalendar />}>{weekGenerated ? "Regenerate Schedule" : "Generate Schedule"}</Button>
+                    </Group>
                     <Flex gap={"sm"} align={"center"} justify={"stretch"} h={rem(14)} w={"100%"}>
                         {activeDays.map(ad => <Text key={ad.value} ta={"center"}  flex={1}>{ad.label}</Text>)}
                     </Flex>
@@ -355,12 +473,15 @@ export default function Schedule() {
                                             </Flex>
                                             <Flex flex={"1"} w={"2rem"} align={"stretch"}>
                                                 {shift.roles.map((role: any) => {
+                                                    if(!weekGenerated) {
+                                                        return <Box w={"100%"} h={"100%"} bg={"lightgray"} />
+                                                    }
                                                     const grad = roleColors[role.value];
                                                     return <>
                                                         <Flex direction={"row"} align="strech" flex={"1"}>
                                                             {Array(role.expected).fill(0).map((num: any, i: number) => {
                                                                 return <>
-                                                                    <Tooltip label={i >= role.amount ? role.value + " Needed" : role.employeeName}>
+                                                                    <Tooltip label={i >= role.amount ? role.value + " Needed" : role.employees[i].firstName + " " + role.employees[i].lastName}>
                                                                         <Group bg={i >= role.amount ? "red" : grad} flex={1}>
                                                                             {i >= role.amount && <Center w={"100%"}>
                                                                                 <IconAlertCircle color="white" />
