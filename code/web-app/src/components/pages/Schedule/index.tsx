@@ -1,10 +1,34 @@
-import { Center, Flex, Group, Paper, rem, Stack, Title, Text, Divider, Select, Box, Avatar, getGradient, useMantineTheme, ColorSwatch, Tooltip } from "@mantine/core";
+import { Center, Flex, Group, Paper, rem, Stack, Title, Text, Divider, Select, Box, Avatar, getGradient, useMantineTheme, ColorSwatch, Tooltip, Skeleton } from "@mantine/core";
 import { Calendar } from "@mantine/dates";
 import "./index.css";
 import { useEffect, useState } from "react";
-import { stringToColour, stringToNumber, timetoMinutes } from "../../../utils/util";
+import { getWeek, stringToColour, stringToNumber, timetoMinutes } from "../../../utils/util";
 import { IconAlertCircle, IconUxCircle, IconX } from "@tabler/icons-react";
+import dayjs from 'dayjs';
+
+function getDay(date: Date) {
+    const day = date.getDay();
+    return day === 0 ? 6 : day - 1;
+  }
+  
+  function startOfWeek(date: Date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate() - getDay(date) - 1);
+  }
+  
+  function endOfWeek(date: Date) {
+    return dayjs(new Date(date.getFullYear(), date.getMonth(), date.getDate() + (6 - getDay(date))))
+      .endOf('date')
+      .toDate();
+  }
+  
+  function isInWeekRange(date: Date, value: Date | null) {
+    return value
+      ? dayjs(date).isBefore(endOfWeek(value)) && dayjs(date).isAfter(startOfWeek(value))
+      : false;
+  }
+
 function getMinMaxTime(week: any): [number, number, string, string] {
+    if(!week) return [-1, -1, "", ""]
     let min = Number.MAX_VALUE;
     let max = 0;
     let minStr = "";
@@ -42,6 +66,108 @@ function getUniqueRoles(weekInfo: string) {
     return roles;
 }
 
+const test = {
+    mon: {
+        shifts: [
+            {
+                start: "08:00",
+                end: "12:00",
+                roles: [
+                    {
+                        value: "Chef",
+                        amount: 1,
+                        expected: 2,
+                    },
+                    {
+                        value: "Waiter",
+                        amount: 3
+                    }
+                ]
+            },
+            {
+                start: "12:00",
+                end: "19:00",
+                roles: [
+                    {
+                        value: "Chef",
+                        amount: 2
+                    },
+                    {
+                        value: "Waiter",
+                        amount: 3
+                    }
+                ]
+            },
+            {
+                start: "19:00",
+                end: "22:00",
+                roles: [
+                    {
+                        value: "Chef",
+                        amount: 2
+                    },
+                    {
+                        value: "Waiter",
+                        amount: 2
+                    }
+                ]
+            }
+        ]
+    },
+    wed: {
+        shifts: [
+            {
+                start: "07:00",
+                end: "11:00",
+                roles: [
+                    {
+                        value: "Chef",
+                        amount: 1,
+                        expected: 1,
+                    },
+                    {
+                        value: "Waiter",
+                        amount: 3,
+                        expected: 3,
+                    }
+                ]
+            },
+            {
+                start: "11:00",
+                end: "20:00",
+                roles: [
+                    {
+                        value: "Chef",
+                        amount: 2,
+                        expected: 2,
+                    },
+                    {
+                        value: "Waiter",
+                        amount: 3,
+                        expected: 3,
+                    }
+                ]
+            },
+            {
+                start: "20:00",
+                end: "23:30",
+                roles: [
+                    {
+                        value: "Chef",
+                        amount: 2,
+                        expected: 3,
+                    },
+                    {
+                        value: "Waiter",
+                        amount: 2,
+                        expected: 2,
+                    }
+                ]
+            }
+        ]
+    }
+}
+
 export default function Schedule() {
     const allDays = [
         {label: "Monday", value: "mon"},
@@ -67,111 +193,30 @@ export default function Schedule() {
         "#63687C"
     ]
 
-    const [weekInfo, setWeekInfo] = useState<any>({
-        mon: {
-            shifts: [
-                {
-                    start: "08:00",
-                    end: "12:00",
-                    roles: [
-                        {
-                            value: "Chef",
-                            amount: 1,
-                            expected: 2,
-                        },
-                        {
-                            value: "Waiter",
-                            amount: 3
-                        }
-                    ]
-                },
-                {
-                    start: "12:00",
-                    end: "19:00",
-                    roles: [
-                        {
-                            value: "Chef",
-                            amount: 2
-                        },
-                        {
-                            value: "Waiter",
-                            amount: 3
-                        }
-                    ]
-                },
-                {
-                    start: "19:00",
-                    end: "22:00",
-                    roles: [
-                        {
-                            value: "Chef",
-                            amount: 2
-                        },
-                        {
-                            value: "Waiter",
-                            amount: 2
-                        }
-                    ]
-                }
-            ]
-        },
-        wed: {
-            shifts: [
-                {
-                    start: "07:00",
-                    end: "11:00",
-                    roles: [
-                        {
-                            value: "Chef",
-                            amount: 1,
-                            expected: 1,
-                        },
-                        {
-                            value: "Waiter",
-                            amount: 3,
-                            expected: 3,
-                        }
-                    ]
-                },
-                {
-                    start: "11:00",
-                    end: "20:00",
-                    roles: [
-                        {
-                            value: "Chef",
-                            amount: 2,
-                            expected: 2,
-                        },
-                        {
-                            value: "Waiter",
-                            amount: 3,
-                            expected: 3,
-                        }
-                    ]
-                },
-                {
-                    start: "20:00",
-                    end: "23:30",
-                    roles: [
-                        {
-                            value: "Chef",
-                            amount: 2,
-                            expected: 3,
-                        },
-                        {
-                            value: "Waiter",
-                            amount: 2,
-                            expected: 2,
-                        }
-                    ]
-                }
-            ]
-        }
-    })
+    const template = [{
+
+    }]
+
+    const schedule = [{}]
+
+    useEffect(() => {
+        setWeek(new Date())
+    }, [])
+
+    useEffect(() => {
+        if(!template || !schedule) return;
+        
+    }, [template, schedule])
+
+    const [weekInfo, setWeekInfo] = useState<any>(null)
 
     const [roleColors, setRoleColors] = useState<any>([]);
 
+    const [hovered, setHovered] = useState<Date | null>(null);
+    const [week, setWeek] = useState<Date | null>(null);
+
     useEffect(() => {
+        if(!weekInfo) return;
         const roles = getUniqueRoles(weekInfo).sort();
         const roleCols: any = {}
         let index = 0;
@@ -210,19 +255,38 @@ export default function Schedule() {
         <Flex direction="column" w={rem(300)} gap={"md"}>
             <Paper radius={"md"} py={"md"} withBorder w={"100%"} mih={rem(300)}>
                 <Center>
-                    <Calendar />
+                    <Calendar
+                        withCellSpacing={false}
+                        getDayProps={(date) => {
+                          const isHovered = isInWeekRange(date, hovered);
+                          const isSelected = isInWeekRange(date, week);
+                          const isInRange = isHovered || isSelected;
+                          return {
+                            onMouseEnter: () => setHovered(date),
+                            onMouseLeave: () => setHovered(null),
+                            inRange: isInRange,
+                            firstInRange: isInRange && date.getDay() === 1,
+                            lastInRange: isInRange && date.getDay() === 0,
+                            selected: isSelected,
+                            onClick: () => setWeek(date),
+                          };
+                        }}
+                    />
                 </Center>
             </Paper>
             <Paper p={"md"} radius={"md"} withBorder w={"100%"} flex={1}>
                 <Stack gap={"sm"}>
                     <Title order={6} opacity={0.6}>Roles needed this week</Title>
-                    {Object.keys(roleColors).map(key => (
+                    {!weekInfo && <Skeleton mih={rem(40)} visible={true} />}
+                    {weekInfo && Object.keys(roleColors).map(key => (
                         <Group gap={"sm"}>
                             <ColorSwatch color={roleColors[key]} withShadow /><Text>{key}</Text>
                         </Group>
                     ))}
                     <Divider />
                     <Title order={6} opacity={0.6}>Employees working this week</Title>
+                    {!weekInfo && <Skeleton mih={rem(40)} visible={true} />}
+                    {weekInfo && <>
                     <Group>
                         <Avatar />
                         <Text>Steve carell</Text>
@@ -231,6 +295,7 @@ export default function Schedule() {
                         <Avatar />
                         <Text>Leslie Knope</Text>
                     </Group>
+                    </>}
                 </Stack>
             </Paper>
         </Flex>
@@ -245,14 +310,15 @@ export default function Schedule() {
             <Paper radius={"md"} flex={1} p={"md"} withBorder>
                 <Flex gap={"xs"} h={"100%"} direction={"column"} justify={"stretch"}>
                     <Stack gap={0} mb={"md"}>
-                        <Title order={2} opacity={0.9}>Week 23</Title>
+                        <Title order={2} opacity={0.9}>Week {week ? getWeek(week) : ""}</Title>
                         <Title order={6} opacity={0.6}>Dec 23 - Dec 31</Title>
                     </Stack>
                     <Flex gap={"sm"} align={"center"} justify={"stretch"} h={rem(14)} w={"100%"}>
                         {activeDays.map(ad => <Text key={ad.value} ta={"center"}  flex={1}>{ad.label}</Text>)}
                     </Flex>
                     <Flex flex={1} gap={"sm"} justify={"stretch"} h={"100%"} w={"100%"}>
-                        {activeDays.map(ad => {
+                        {!weekInfo && <Skeleton visible={true}/>}
+                        {weekInfo && activeDays.map(ad => {
                             const info = weekInfo[ad.value];
                             if(!info) {
                                 return <Stack flex={1}>
