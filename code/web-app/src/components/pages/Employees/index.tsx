@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import { Card, Text, Image, Stack, Modal, Button, Container, Title, TextInput, NumberInput, MultiSelect, Box } from '@mantine/core';
+import { Card, Text, Image, Stack, Modal, Button, Container, Title, TextInput, NumberInput, MultiSelect, Box, Flex } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 
 interface EmployeeProps {
@@ -33,123 +33,6 @@ const employeesData: EmployeeProps[] = [
         locations: ["London"],
         roles: ["Waiter"],
         imageUrl: avatar
-    },
-    {
-        firstName: "Emma",
-        lastName: "Johnson",
-        email: "emma.johnson@example.com",
-        address: "45 Queen's Road, Stockholm",
-        dateOfBirth: new Date("1992-11-23"),
-        emergencyContact: "Michael Johnson, +46 987 654 321",
-        dateHired:  new Date("2019-07-15"),
-        contractedHours: 35,
-        locations: ["Stockholm"],
-        roles: ["Receptionist"],
-        imageUrl: avatar
-    },
-    {
-        firstName: "Liam",
-        lastName: "Smith",
-        email: "liam.smith@example.com",
-        address: "77 King's Avenue, London",
-        dateOfBirth: new Date("1988-02-02"),
-        emergencyContact: "Olivia Smith, +44 321 654 987",
-        dateHired: new Date("2020-10-10"),
-        contractedHours: 40,
-        locations: ["London"],
-        roles: ["Chef"],
-        imageUrl: avatar
-    },
-    {
-        firstName: "Sophia",
-        lastName: "Brown",
-        email: "sophia.brown@example.com",
-        address: "19 Park Lane, Stockholm",
-        dateOfBirth: new Date("1990-09-14"),
-        emergencyContact: "Henry Brown, +46 555 666 777",
-        dateHired:  new Date("2018-02-20"),
-        contractedHours: 30,
-        locations: ["Stockholm"],
-        roles: ["Waiter"],
-        imageUrl: avatar
-    },
-    {
-        firstName: "Noah",
-        lastName: "Taylor",
-        email: "noah.taylor@example.com",
-        address: "33 River St, London",
-        dateOfBirth: new Date("1995-12-01"),
-        emergencyContact: "Ava Taylor, +44 987 654 321",
-        dateHired:  new Date("2022-06-12"),
-        contractedHours: 20,
-        locations: ["London"],
-        roles: ["Cook"],
-        imageUrl: avatar
-    },
-    {
-        firstName: "Mia",
-        lastName: "Wilson",
-        email: "mia.wilson@example.com",
-        address: "84 Maple Dr, Stockholm",
-        dateOfBirth: new Date("1993-04-10"),
-        emergencyContact: "Lucas Wilson, +46 123 456 789",
-        dateHired:  new Date("2021-01-08"),
-        contractedHours: 25,
-        locations: ["Stockholm"],
-        roles: ["Receptionist"],
-        imageUrl: avatar
-    },
-    {
-        firstName: "James",
-        lastName: "Anderson",
-        email: "james.anderson@example.com",
-        address: "66 Elm St, London",
-        dateOfBirth: new Date("1987-08-30"),
-        emergencyContact: "Charlotte Anderson, +44 654 321 987",
-        dateHired:  new Date("2017-11-05"),
-        contractedHours: 40,
-        locations: ["London"],
-        roles: ["Chef"],
-        imageUrl: avatar
-    },
-    {
-        firstName: "Isabella",
-        lastName: "Thomas",
-        email: "isabella.thomas@example.com",
-        address: "21 Oak Ln, Stockholm",
-        dateOfBirth: new Date("1996-05-25"),
-        emergencyContact: "William Thomas, +46 444 555 666",
-        dateHired:  new Date("2020-03-19"),
-        contractedHours: 30,
-        locations: ["Stockholm"],
-        roles: ["Waiter"],
-        imageUrl: avatar
-    },
-    {
-        firstName: "Ethan",
-        lastName: "Walker",
-        email: "ethan.walker@example.com",
-        address: "5 Cherry St, London",
-        dateOfBirth: new Date("1994-03-18"),
-        emergencyContact: "Amelia Walker, +44 789 012 345",
-        dateHired:  new Date("2019-05-23"),
-        contractedHours: 25,
-        locations: ["London"],
-        roles: ["Cook"],
-        imageUrl: avatar
-    },
-    {
-        firstName: "Olivia",
-        lastName: "Martinez",
-        email: "olivia.martinez@example.com",
-        address: "12 Pine Rd, Stockholm",
-        dateOfBirth: new Date("1989-07-07"),
-        emergencyContact: "Liam Martinez, +46 321 987 654",
-        dateHired:  new Date("2016-08-14"),
-        contractedHours: 40,
-        locations: ["Stockholm"],
-        roles: ["Receptionist"],
-        imageUrl: avatar
     }
 ];
 
@@ -157,11 +40,9 @@ const EmployeeTile: React.FC<Partial<EmployeeProps> & { onClick: () => void }> =
     return (
         <Card shadow="sm" padding="lg" onClick={onClick} style={{ cursor: 'pointer', width: '100%' }}>
             <div style={styles.container}>
-                <Image src={imageUrl}  height={100} width={100} style={styles.image} />
+                <Image src={imageUrl} height={100} width={100} style={styles.image} />
                 <div style={styles.textContainer}>
-                    <Text size="lg">
-                        {firstName + ' ' + lastName} <span style={{ fontSize: '0.8em', color: 'gray' }}></span>
-                    </Text>
+                    <Text size="lg">{firstName + ' ' + lastName}</Text>
                     <Text size="sm" color="dimmed">{roles?.join(', ')}</Text>
                     <Text size="sm" color="dimmed">{locations?.join(', ')}</Text>
                 </div>
@@ -174,6 +55,7 @@ export default function EmployeeList() {
     const [employees, setEmployees] = useState<EmployeeProps[]>(employeesData);
     const [selectedEmployee, setSelectedEmployee] = useState<EmployeeProps | null>(null);
     const [modalOpened, setModalOpened] = useState<boolean>(false);
+    const [editMode, setEditMode] = useState<boolean>(false);
     const [opened, setOpened] = useState(false);
     const defaultEmployeeData: EmployeeProps = {
         firstName: '',
@@ -188,7 +70,7 @@ export default function EmployeeList() {
         roles: [],
         imageUrl: avatar
     };
-    const [employeeData, setEmployeeData] = useState(defaultEmployeeData);
+    const [employeeData, setEmployeeData] = useState<EmployeeProps>(defaultEmployeeData);
     const locationOptions = ['London, United Kingdom', 'Stockholm, Sweden'];
     const roleOptions = ['Chef', 'Cook', 'Waiter', 'Receptionist', 'Cleaner'];
 
@@ -207,13 +89,33 @@ export default function EmployeeList() {
     };
 
     const handleTileClick = (employee: EmployeeProps) => {
-        setSelectedEmployee(employee);
+        setSelectedEmployee({ ...employee });
         setModalOpened(true);
     };
 
     const handleCloseModal = () => {
         setModalOpened(false);
         setSelectedEmployee(null);
+        setEditMode(false);
+    };
+
+    const handleModalInputChange = (field: keyof EmployeeProps, value: any) => {
+        if (selectedEmployee) {
+            setSelectedEmployee(prev => prev ? { ...prev, [field]: value } : null);
+        }
+    };
+
+    const handleSaveChanges = () => {
+        if (selectedEmployee) {
+            // Update employee list with new details
+            setEmployees(prev =>
+                prev.map(emp =>
+                    emp.email === selectedEmployee.email ? selectedEmployee : emp
+                )
+            );
+            setEditMode(false);
+            handleCloseModal(); // Close modal after saving changes
+        }
     };
 
     return (
@@ -323,11 +225,11 @@ export default function EmployeeList() {
             <Stack justify="lg" style={{ marginTop: '20px' }}>
                 {employees.map((employee) => (
                     <EmployeeTile
-                        key={employee.firstName + ' ' + employee.lastName}
+                        key={employee.email}
                         firstName={employee.firstName}
                         lastName={employee.lastName}
                         roles={employee.roles}
-                        imageUrl={avatar}
+                        imageUrl={employee.imageUrl}
                         locations={employee.locations}
                         contractedHours={employee.contractedHours}
                         emergencyContact={employee.emergencyContact}
@@ -343,70 +245,117 @@ export default function EmployeeList() {
             <Modal
                 opened={modalOpened}
                 onClose={handleCloseModal}
-                title={selectedEmployee?.firstName || ''}
+                title="Employee Details"
                 size="lg"
             >
                 {selectedEmployee && (
-                    <Stack align="center" justify="sm">
+                    <Flex direction="row" align="flex-start">
                         <Image
                             src={selectedEmployee.imageUrl}
-                            alt={selectedEmployee.firstName}
-                            style={{ objectFit: 'cover', borderRadius: '50%', height: '200px', width: '200px' }}
+                            height={100}
+                            width={100}
+                            style={{ borderRadius: '50%', marginRight: '20px' }}
                         />
-                        <div style={styles.infoContainer}>
-                            <Text><strong>Name:</strong> {selectedEmployee.firstName + ' ' + selectedEmployee.lastName}</Text>
-                            <Text>
-                                <strong>Date of Birth:</strong>
-                                {new Date(selectedEmployee.dateOfBirth).toLocaleDateString('en-GB', {
-                                    day: '2-digit',
-                                    month: '2-digit',
-                                    year: 'numeric'
-                                })}
-                            </Text>
-                            <Text><strong>Designation:</strong> {selectedEmployee.roles.join(', ')}</Text>
-                            <Text><strong>Location:</strong> {selectedEmployee.locations.join(', ')}</Text>
-                            <Text><strong>Contracted Hours:</strong> {selectedEmployee.contractedHours}</Text>
-                            <Text><strong>Emergency Contact:</strong> {selectedEmployee.emergencyContact}</Text>
-                            <Text><strong>Date Hired:</strong> {new Date(selectedEmployee.dateHired).toLocaleDateString('en-GB', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric'
-                            })}</Text>
-                            <Text><strong>Email:</strong> {selectedEmployee.email}</Text>
-                            <Text><strong>Address:</strong> {selectedEmployee.address}</Text>
-                        </div>
-                    </Stack>
+                        <Stack justify="sm" style={{ flex: 1 }}>
+                            <TextInput
+                                label="First Name"
+                                value={selectedEmployee.firstName}
+                                readOnly={!editMode}
+                                onChange={(e) => handleModalInputChange('firstName', e.target.value)}
+                            />
+                            <TextInput
+                                label="Last Name"
+                                value={selectedEmployee.lastName}
+                                readOnly={!editMode}
+                                onChange={(e) => handleModalInputChange('lastName', e.target.value)}
+                            />
+                            <DatePickerInput
+                                label="Date of Birth"
+                                value={selectedEmployee.dateOfBirth}
+                                readOnly={!editMode}
+                                onChange={(date) => handleModalInputChange('dateOfBirth', date)}
+                                valueFormat="DD-MM-YYYY"
+                            />
+                            <TextInput
+                                label="Email"
+                                value={selectedEmployee.email}
+                                readOnly={!editMode}
+                                onChange={(e) => handleModalInputChange('email', e.target.value)}
+                            />
+                            <TextInput
+                                label="Address"
+                                value={selectedEmployee.address}
+                                readOnly={!editMode}
+                                onChange={(e) => handleModalInputChange('address', e.target.value)}
+                            />
+                            <TextInput
+                                label="Emergency Contact"
+                                value={selectedEmployee.emergencyContact}
+                                readOnly={!editMode}
+                                onChange={(e) => handleModalInputChange('emergencyContact', e.target.value)}
+                            />
+                            <DatePickerInput
+                                label="Date Hired"
+                                value={selectedEmployee.dateHired}
+                                readOnly={!editMode}
+                                onChange={(date) => handleModalInputChange('dateHired', date)}
+                                valueFormat="DD-MM-YYYY"
+                            />
+                            <NumberInput
+                                label="Contracted Hours"
+                                value={selectedEmployee.contractedHours}
+                                readOnly={!editMode}
+                                onChange={(value) => handleModalInputChange('contractedHours', value)}
+                            />
+                            <MultiSelect
+                                label="Locations"
+                                data={locationOptions}
+                                value={selectedEmployee.locations}
+                                readOnly={!editMode}
+                                onChange={(value) => handleModalInputChange('locations', value)}
+                            />
+                            <MultiSelect
+                                label="Roles"
+                                data={roleOptions}
+                                value={selectedEmployee.roles}
+                                readOnly={!editMode}
+                                onChange={(value) => handleModalInputChange('roles', value)}
+                            />
+                            <Flex justify="flex-end" style={{ marginTop: '20px' }}>
+                                {editMode ? (
+                                    <>
+                                        <Button onClick={handleSaveChanges}>Save</Button>
+                                        <Button onClick={() => setEditMode(false)} style={{ marginLeft: '10px' }}>Cancel</Button>
+                                    </>
+                                ) : (
+                                    <Button onClick={() => setEditMode(true)}>Edit</Button>
+                                )}
+                            </Flex>
+                        </Stack>
+                    </Flex>
                 )}
             </Modal>
         </Container>
     );
 }
 
+// Styles
 const styles = {
     container: {
         display: 'flex',
-        flexDirection: 'row' as 'row'
+        alignItems: 'center',
     },
     image: {
-        marginRight: '20px',
         borderRadius: '50%',
     },
     textContainer: {
-        display: 'flex',
-        flexDirection: 'column' as 'column',
-        justifyContent: 'center',
+        marginLeft: '20px',
     },
     header: {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: '20px',
-    },
-    infoContainer: {
-        display: 'flex',
-        flexDirection: 'column' as 'column',
-        alignItems: 'flex-start',
-        marginTop: '20px',
     },
 };
 

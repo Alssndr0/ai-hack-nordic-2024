@@ -42,6 +42,37 @@ export const BUSINESS_INFO = gql`
   }
 `;
 
+export const SCHEDULE_QUERY = gql`
+  query GetSchedule($year: Int!, $week: Int!) {
+    getSchedulesByWeek(year: $year, week: $week) {
+      firstName,
+      lastName,
+      date,
+      shiftName,
+      startTime,
+      endTime,
+      roleName
+    } 
+  }
+`;
+
+export const SCHEDULE_TEMPLATE_QUERY = gql`
+  query GetScheduleTemplate {
+    scheduleTemplate {
+      shiftId,
+      dayOfWeek,
+      openTime,
+      closeTime,
+      shiftName,
+      startTime,
+      endTime,
+      roleName,
+      employeesRequired
+    } 
+  }
+`;
+
+
 export const CREATE_SCHEDULE = gql`
   mutation CreateSchedule {
     schedulesCreate {
