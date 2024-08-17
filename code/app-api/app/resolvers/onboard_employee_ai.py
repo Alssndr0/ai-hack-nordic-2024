@@ -6,6 +6,7 @@ import os
 import json 
 from openai import OpenAI
 from docx import Document
+import asyncio
 
 
 # Set up the OpenAI client
@@ -119,28 +120,30 @@ class Mutation:
             EmployeeData(
                 first_name="John",
                 last_name="Doe",
-                phone_number="+1234567890",
+                phone_number="+4434567890",
                 email="john.doe@example.com",
-                address="123 Main St, Springfield",
+                address="123 Main St, Kensington",
                 date_of_birth="1985-05-15",
-                emergency_contact="Jane Doe, +0987654321",
+                emergency_contact="Jane Doe, +4487654321",
                 dateHired="2023-01-01",
                 contracted_hours="40",
-                locations="Springfield",
+                locations="location_1",
                 roles=["Cashier", "Waiter"]
             ),
             EmployeeData(
                 first_name="Alice",
                 last_name="Smith",
-                phone_number="+0987654321",
+                phone_number="+4487654321",
                 email="alice.smith@example.com",
-                address="456 Elm St, Springfield",
+                address="456 Elm St, Kensington",
                 date_of_birth="1990-08-20",
-                emergency_contact="Bob Smith, +1234567890",
+                emergency_contact="Bob Smith, +4434567890",
                 dateHired="2023-02-01",
                 contracted_hours="20",
-                locations="Springfield",
+                locations="location_2",
                 roles=["Cook", "Manager"]
             )
         ]
+        await asyncio.sleep(2)
+
         return employee_data_list
