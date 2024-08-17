@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, UploadFile, File
 import logging
 from fastapi import HTTPException
 from pydantic import BaseModel
@@ -79,4 +79,12 @@ async def chat(conversation: Conversation):
 
 # Include the chat router under the `/api` prefix
 app.include_router(chat_router, prefix="/api")
+
+
+@app.post("/upload/")
+async def upload_file(file: UploadFile = File(...)):
+    file_location = f"/tmp/{file.filename}"
+    with open(file_location, "wb") as f:
+        f.write(await file.read())
+    return {"file_location": file_location}
 

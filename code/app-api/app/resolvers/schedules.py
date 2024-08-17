@@ -51,12 +51,13 @@ def get_schedule_template():
     # Define the Couchbase N1QL query using the dynamic bucket name
     query = f"""
     SELECT sh.shift_id, loh.day_of_week, loh.open_time, loh.close_time,
-           sh.shift_name, sh.start_time, sh.end_time,
-           r.name AS role_name, sr.employees_required
+           sh.shift_name, sh.start_time, sh.end_time, 
+           r.name AS role_name, sr.employees_required, loh.location_id, loc.name AS location_name
     FROM {bucket_name}._default.location_opening_hours AS loh
     JOIN {bucket_name}._default.shifts AS sh ON loh.location_id = sh.location_id
     JOIN {bucket_name}._default.staff_requirements AS sr ON sh.shift_id = sr.shift_id
     JOIN {bucket_name}._default.roles AS r ON sr.role_id = r.id
+    JOIN {bucket_name}._default.locations AS loc ON loh.location_id = loc.id
     """
  
     # Execute the query against the Couchbase database
@@ -95,6 +96,8 @@ class ScheduleTemplate:
     end_time: str
     role_name: str
     employees_required: str
+    location_id: str
+    location_name: str
 
     
 
@@ -139,8 +142,8 @@ class Mutation:
         employee_roles = list_employee_roles()
         schedules = assign_roles_by_shift(shifts, staff_requirements, employees, constraints, employee_roles)
         created_schedules = []
-        print('outside the schedule loop!')
-        print(schedules)
+        #print('outside the schedule loop!')
+        #print(schedules)
         for schedule in schedules:
             
             id = str(uuid.uuid1())
