@@ -7,6 +7,7 @@ import { IconAlertCircle, IconCalendar, IconUxCircle, IconX } from "@tabler/icon
 import dayjs from 'dayjs';
 import { useMutation, useQuery } from "@apollo/client";
 import { CREATE_SCHEDULE, SCHEDULE_QUERY, SCHEDULE_TEMPLATE_QUERY } from "../../../graphql/items";
+import React from "react";
 
 function getDay(date: Date) {
     const day = date.getDay();
@@ -171,19 +172,19 @@ const test = {
 }
 
 const dayNumToKey: Record<number, string> = {
-    1: "mon",
-    2: "tue",
-    3: "wed",
-    4: "thu",
-    5: "fri",
-    6: "sat",
-    7: "sun",
+    0: "mon",
+    1: "tue",
+    2: "wed",
+    3: "thu",
+    4: "fri",
+    5: "sat",
+    6: "sun",
 }
 
 
 const createSchedule = (template: any, weekData: any[]) => {
     weekData.forEach(employeeShift => {
-        const dayName = dayNumToKey[new Date(employeeShift.date).getDay()];
+        const dayName = dayNumToKey[new Date(employeeShift.date).getDay() - 1];
         if(!template[dayName]) return
         const shift = template[dayName].shifts.find((o: any) => o.start == employeeShift.startTime && o.end == employeeShift.endTime);
         if(!shift) return;
@@ -313,21 +314,25 @@ export default function Schedule() {
 
     const [hovered, setHovered] = useState<Date | null>(null);
     const [week, setWeek] = useState<Date>(new Date());
+    const [schedData, setSchedData] = useState<any>(null);
     const {loading: loadingSched, error: errorSched, data: scheduleData, refetch} = useQuery(SCHEDULE_QUERY, {variables:{year: 2024, week: getWeek(week)}})
+    useEffect(() => {
+        setSchedData(scheduleData)
+    }, [scheduleData])
     const [createScheduleMut] = useMutation(CREATE_SCHEDULE)
     const [weekGenerated, setWeekGenerated] = useState(true);
-    
     useEffect(() => {
-        if(!templateData || !scheduleData || loading) return;
+        console.log("IN HERE GENERATE WEEK")
+        if(!templateData || !schedData || loading) return;
         const obj = createTemplateStructure(templateData.scheduleTemplate);
         //const filledObj = obj;
-        const filledObj = createSchedule(obj, scheduleData.getSchedulesByWeek); 
-        if(scheduleData.getSchedulesByWeek.length == 0) {
+        const filledObj = createSchedule(obj, schedData.getSchedulesByWeek); 
+        if(schedData.getSchedulesByWeek.length == 0) {
             setWeekGenerated(false);
         }
         console.log(filledObj)
         setWeekInfo(filledObj); 
-    }, [templateData, scheduleData, loading])
+    }, [templateData, schedData, loadingSched])
     
     useEffect(() => {
         if(!weekInfo) return;
@@ -335,7 +340,6 @@ export default function Schedule() {
         const roleCols: any = {}
         let index = 0;
         for(const role of roles) {
-            let ogIndex = index;
             let color = "";
             if(index >= colors.length) {
                 color = stringToColour(role);
@@ -346,7 +350,6 @@ export default function Schedule() {
 
             roleCols[role] = color;
         }
-        console.log(roles, roleCols);
         setRoleColors(roleCols);
     }, [weekInfo])
 
@@ -363,14 +366,15 @@ export default function Schedule() {
     const onGenerateSchedule = async () => {
         setWeekInfo(null);
         await createScheduleMut();
-        await refetch();
+        const {data} = await refetch();
+        console.log("refetch", data)
+        setSchedData({...data});
     }
 
     const [activeDays, setActiveDays] = useState(allDays)
     const theme = useMantineTheme();
     const [smallestTime, largestTime, smallestTimeStr, largestTimeStr] = getMinMaxTime(weekInfo);
     const dayLength = largestTime - smallestTime;
-    console.log(smallestTime, largestTime, dayLength);
     return <Flex w={"100%"} h={"100vh"} py={"lg"} gap={"md"}>
         <Flex direction="column" w={rem(300)} gap={"md"}>
             <Paper radius={"md"} py={"md"} withBorder w={"100%"} mih={rem(300)}>
@@ -439,7 +443,7 @@ export default function Schedule() {
                         {weekInfo && activeDays.map(ad => {
                             const info = weekInfo[ad.value];
                             if(!info) {
-                                return <Stack flex={1}>
+                                return <Stack key={ad.value} flex={1}>
                                     <Paper opacity={0.8} withBorder radius={"md"} w={"100%"} h={"100%"} style={{overflow: "hidden"}}>
                                         <Flex align={"stretch"} h={"100%"} w={"100%"}>
                                             <Flex gap={"xs"} direction={"column"} w={"1.6rem"} p={"xs"} align={"center"}>
@@ -461,10 +465,10 @@ export default function Schedule() {
                                     const start = timetoMinutes(shift.start);
                                     const end = timetoMinutes(shift.end);
                                     const lengthMin = end-start;
-                                    const startPercent = ((start - smallestTime) / dayLength) + (i == 0 ? 0 : 0.01);
-                                    const lengthPercent = (lengthMin / dayLength) - (i == info.shifts.left -1 ? 0 : 0.01);
+                                    const startPercent = ((start - smallestTime) / dayLength);
+                                    const lengthPercent = (lengthMin / dayLength);
                                     return (
-                                    <Paper pos={"absolute"} top={`${startPercent*100}%`} withBorder radius={"md"} w={"100%"} h={`${lengthPercent * 100}%`} style={{overflow: "hidden"}}>
+                                    <Paper key={ad.value+shift.start+shift.end} pos={"absolute"} top={`${startPercent*100}%`} withBorder radius={"md"} w={"100%"} h={`${lengthPercent * 100}%`} style={{overflow: "hidden"}}>
                                         <Flex align={"stretch"} h={"100%"} w={"100%"}>
                                             <Flex gap={"xs"} direction={"column"} w={"1.6rem"} p={"xs"} align={"center"}>
                                                 <Text className="time" opacity={0.7}>{shift.start}</Text>
@@ -477,10 +481,10 @@ export default function Schedule() {
                                                         return <Box w={"100%"} h={"100%"} bg={"lightgray"} />
                                                     }
                                                     const grad = roleColors[role.value];
-                                                    return <>
+                                                    return <React.Fragment key={role.value+ad.value+shift.start+shift.end}>
                                                         <Flex direction={"row"} align="strech" flex={"1"}>
                                                             {Array(role.expected).fill(0).map((num: any, i: number) => {
-                                                                return <>
+                                                                return <React.Fragment key={role.value+ad.value+shift.start+shift.end+i}>
                                                                     <Tooltip label={i >= role.amount ? role.value + " Needed" : role.employees[i].firstName + " " + role.employees[i].lastName}>
                                                                         <Group bg={i >= role.amount ? "red" : grad} flex={1}>
                                                                             {i >= role.amount && <Center w={"100%"}>
@@ -489,11 +493,11 @@ export default function Schedule() {
                                                                         </Group>
                                                                     </Tooltip>
                                                                     {i != role.expected-1 && <Divider orientation="vertical" />}
-                                                                </>
+                                                                </React.Fragment>
                                                             })}
                                                         </Flex>
                                                         {i != shift.roles.length && <Divider orientation="vertical" />}
-                                                    </>;
+                                                    </React.Fragment>;
                                                 })}
                                             </Flex>
                                         </Flex>
