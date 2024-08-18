@@ -1,13 +1,39 @@
-import { Center, Flex, Group, Paper, rem, Stack, Title, Text, Divider, Select, Box, Avatar, getGradient, useMantineTheme, ColorSwatch, Tooltip, Skeleton, Button } from "@mantine/core";
+import { Center, Flex, Group, Paper, rem, Stack, Title, Text, Divider, Select, Box, Avatar, getGradient, useMantineTheme, ColorSwatch, Tooltip, Skeleton, Button, Modal, Rating } from "@mantine/core";
 import { Calendar } from "@mantine/dates";
 import "./index.css";
 import { useEffect, useState } from "react";
 import { getWeek, stringToColour, stringToNumber, timetoMinutes } from "../../../utils/util";
-import { IconAlertCircle, IconCalendar, IconUxCircle, IconX } from "@tabler/icons-react";
+import { IconAlertCircle, IconCalendar, IconThumbDown, IconThumbUp, IconUxCircle, IconX } from "@tabler/icons-react";
 import dayjs from 'dayjs';
 import { useMutation, useQuery } from "@apollo/client";
 import { CREATE_SCHEDULE, SCHEDULE_QUERY, SCHEDULE_TEMPLATE_QUERY } from "../../../graphql/items";
 import React from "react";
+
+const getIconStyle = (color?: string) => ({
+    width: rem(24),
+    height: rem(24),
+    color: color ? `var(--mantine-color-${color}-7)` : undefined,
+  });
+  
+  const getEmptyIcon = (value: number) => {
+    const iconStyle = getIconStyle();
+  
+    switch (value) {
+      case 1:
+        return <IconThumbUp style={iconStyle} />;
+      case 2:
+        return <IconThumbDown style={iconStyle} />;
+    }
+  };
+  
+  const getFullIcon = (value: number) => {
+    switch (value) {
+      case 1:
+        return <IconThumbUp style={getIconStyle('blue')} />;
+      case 2:
+        return <IconThumbDown style={getIconStyle('red')} />;
+    }
+  };
 
 function getDay(date: Date) {
     const day = date.getDay();
@@ -69,116 +95,15 @@ function getUniqueRoles(weekInfo: string) {
     return roles;
 }
 
-const test = {
-    mon: {
-        shifts: [
-            {
-                start: "08:00",
-                end: "12:00",
-                roles: [
-                    {
-                        value: "Chef",
-                        amount: 1,
-                        expected: 2,
-                    },
-                    {
-                        value: "Waiter",
-                        amount: 3
-                    }
-                ]
-            },
-            {
-                start: "12:00",
-                end: "19:00",
-                roles: [
-                    {
-                        value: "Chef",
-                        amount: 2
-                    },
-                    {
-                        value: "Waiter",
-                        amount: 3
-                    }
-                ]
-            },
-            {
-                start: "19:00",
-                end: "22:00",
-                roles: [
-                    {
-                        value: "Chef",
-                        amount: 2
-                    },
-                    {
-                        value: "Waiter",
-                        amount: 2
-                    }
-                ]
-            }
-        ]
-    },
-    wed: {
-        shifts: [
-            {
-                start: "07:00",
-                end: "11:00",
-                roles: [
-                    {
-                        value: "Chef",
-                        amount: 1,
-                        expected: 1,
-                    },
-                    {
-                        value: "Waiter",
-                        amount: 3,
-                        expected: 3,
-                    }
-                ]
-            },
-            {
-                start: "11:00",
-                end: "20:00",
-                roles: [
-                    {
-                        value: "Chef",
-                        amount: 2,
-                        expected: 2,
-                    },
-                    {
-                        value: "Waiter",
-                        amount: 3,
-                        expected: 3,
-                    }
-                ]
-            },
-            {
-                start: "20:00",
-                end: "23:30",
-                roles: [
-                    {
-                        value: "Chef",
-                        amount: 2,
-                        expected: 3,
-                    },
-                    {
-                        value: "Waiter",
-                        amount: 2,
-                        expected: 2,
-                    }
-                ]
-            }
-        ]
-    }
-}
 
 const dayNumToKey: Record<number, string> = {
-    0: "mon",
-    1: "tue",
-    2: "wed",
-    3: "thu",
-    4: "fri",
-    5: "sat",
-    6: "sun",
+    1: "mon",
+    2: "tue",
+    3: "wed",
+    4: "thu",
+    5: "fri",
+    6: "sat",
+    7: "sun",
 }
 
 
@@ -226,7 +151,7 @@ const createTemplateStructure = (template: any) => {
             }
             shiftObj.roles.push(roleObj);
         } else {
-            throw Error("Role already exist in template!")
+            //throw Error("Role already exist in template!")
         }
     })
 
@@ -273,6 +198,7 @@ export default function Schedule() {
     ]
 
     const {loading, error, data: templateData} = useQuery(SCHEDULE_TEMPLATE_QUERY)
+    const [shift, setShift] = useState<any>(null)
     const [template, _] = useState([{
         shiftId: "id1",
         dayOfWeek: 2,
@@ -376,6 +302,14 @@ export default function Schedule() {
     const [smallestTime, largestTime, smallestTimeStr, largestTimeStr] = getMinMaxTime(weekInfo);
     const dayLength = largestTime - smallestTime;
     return <Flex w={"100%"} h={"100vh"} py={"lg"} gap={"md"}>
+        <Modal title={"Shift"} opened={!!shift} onClose={() => setShift(null)}>
+            {shift && <>
+            <Stack gap={"sm"}>
+                <Text>{shift.employee.firstName + " " + shift.employee.lastName}</Text>
+                <Rating emptySymbol={getEmptyIcon} fullSymbol={getFullIcon} highlightSelectedOnly />
+            </Stack>
+            </>}
+        </Modal>
         <Flex direction="column" w={rem(300)} gap={"md"}>
             <Paper radius={"md"} py={"md"} withBorder w={"100%"} mih={rem(300)}>
                 <Center>
@@ -486,7 +420,7 @@ export default function Schedule() {
                                                             {Array(role.expected).fill(0).map((num: any, i: number) => {
                                                                 return <React.Fragment key={role.value+ad.value+shift.start+shift.end+i}>
                                                                     <Tooltip label={i >= role.amount ? role.value + " Needed" : role.employees[i].firstName + " " + role.employees[i].lastName}>
-                                                                        <Group bg={i >= role.amount ? "red" : grad} flex={1}>
+                                                                        <Group style={{cursor: "pointer"}} onClick={() => setShift({shift, employee: role.employees[i], role: role.value})} bg={i >= role.amount ? "red" : grad} flex={1}>
                                                                             {i >= role.amount && <Center w={"100%"}>
                                                                                 <IconAlertCircle color="white" />
                                                                             </Center>}

@@ -84,4 +84,56 @@ export const CREATE_SCHEDULE = gql`
   }
 `;
 
+export const UPLOAD_EMPLOYEE_FILES_MUTATION = gql`
+  mutation ProcessEmployeeFiles($files: [String!]!) {
+    processEmployeeFiles(input: { files: $files }) {
+      firstName
+      lastName
+      phoneNumber
+      email
+      address
+      dateOfBirth
+      emergencyContact
+      dateHired
+      contractedHours
+      locations
+      roles
+    }
+  }
+`;
 
+export const QUERY_EMPLOYEES = gql`
+  query GetEmployees {
+    employees {
+      id
+      employeeId
+      firstName
+      lastName
+      address
+      dateOfBirth
+      emergencyContact
+      dateHired
+      email
+      contractedHours
+    }
+  }
+`;
+
+
+export const POST_EMPLOYEE = gql`
+  mutation PostEmployees($employeeId: String!, $firstName:String!,$lastName:String!,$email:String!,$address:String!,$dateOfBirth:String!,$emergencyContact:String!,$dateHired:String!,$contractedHours:String!,$locations:[String!]!,$roles:[String!]!) {
+    onboardEmployee(input: {employeeId: $employeeId, firstName: $firstName, lastName: $lastName, email:$email,address:$address,dateOfBirth:$dateOfBirth,emergencyContact:$emergencyContact,dateHired:$dateHired,contractedHours:$contractedHours,locations:$locations,roles:$roles}) {
+      employeeId
+    }
+  }
+`;
+
+
+export const QUERY_LOCATIONS = gql`
+  query GetLocations {
+    locations {
+      id
+      name
+    }
+  }
+`;

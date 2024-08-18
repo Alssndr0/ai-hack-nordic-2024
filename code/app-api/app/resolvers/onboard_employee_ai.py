@@ -90,7 +90,7 @@ class EmployeeData:
     emergency_contact: str
     dateHired: str
     contracted_hours: str
-    locations: str
+    locations: list[str]
     roles: list[str]
 
 @strawberry.type
@@ -127,7 +127,7 @@ class Mutation:
                 emergency_contact="Jane Doe, +4487654321",
                 dateHired="2023-01-01",
                 contracted_hours="40",
-                locations="location_1",
+                locations=["location_1"],
                 roles=["Cashier", "Waiter"]
             ),
             EmployeeData(
@@ -140,7 +140,7 @@ class Mutation:
                 emergency_contact="Bob Smith, +4434567890",
                 dateHired="2023-02-01",
                 contracted_hours="20",
-                locations="location_2",
+                locations=["location_2"],
                 roles=["Cook", "Manager"]
             )
         ]

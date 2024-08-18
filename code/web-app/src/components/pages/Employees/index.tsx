@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import { Card, Text, Image, Stack, Modal, Button, Container, Title, TextInput, NumberInput, MultiSelect, Box, Flex } from '@mantine/core';
+import { Card, Text, Image, Stack, Modal, Button, Container, Title, TextInput, NumberInput, MultiSelect, Box, Flex, FileInput, Select, Accordion, Group } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
+import { useMutation, useQuery } from '@apollo/client';
+import { POST_EMPLOYEE, QUERY_EMPLOYEES, QUERY_LOCATIONS, UPLOAD_EMPLOYEE_FILES_MUTATION } from "../../../graphql/items";
+import { IconBrain, IconEyePlus, IconPlus } from '@tabler/icons-react';
 
 interface EmployeeProps {
+    employeeId: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -14,50 +18,30 @@ interface EmployeeProps {
     contractedHours: number;
     locations: string[];
     roles: string[];
-    imageUrl: string;
 }
 
 const avatar: string = 'https://th.bing.com/th?q=Waiter+Speaking+Icon&w=120&h=120&c=1&rs=1&qlt=90&cb=1&dpr=2.5&pid=InlineBlock&mkt=en-GB&cc=GB&setlang=en&adlt=moderate&t=1&mw=247';
 
-// Sample employee data
-const employeesData: EmployeeProps[] = [
-    {
-        firstName: "John",
-        lastName: "Doe",
-        email: "john.doe@example.com",
-        address: "123 Main St, London",
-        dateOfBirth: new Date("1985-06-15"),
-        emergencyContact: "Jane Doe, +44 123 456 789",
-        dateHired: new Date("2021-03-01"),
-        contractedHours: 40,
-        locations: ["London"],
-        roles: ["Waiter"],
-        imageUrl: avatar
-    }
-];
 
-const EmployeeTile: React.FC<Partial<EmployeeProps> & { onClick: () => void }> = ({ firstName, lastName, roles, locations, imageUrl, onClick }) => {
+const EmployeeTile: React.FC<Partial<EmployeeProps> & { onClick: () => void }> = ({ contractedHours, firstName, lastName, address, onClick }) => {
     return (
-        <Card shadow="sm" padding="lg" onClick={onClick} style={{ cursor: 'pointer', width: '100%' }}>
+        <Card withBorder padding="lg" onClick={onClick} style={{ cursor: 'pointer', width: '100%' }}>
             <div style={styles.container}>
-                <Image src={imageUrl} height={100} width={100} style={styles.image} />
+                <Image src={null} height={100} width={100} style={styles.image} fallbackSrc={"https://placehold.co/400x400?text="+firstName![0]+lastName![0]} />
                 <div style={styles.textContainer}>
                     <Text size="lg">{firstName + ' ' + lastName}</Text>
-                    <Text size="sm" color="dimmed">{roles?.join(', ')}</Text>
-                    <Text size="sm" color="dimmed">{locations?.join(', ')}</Text>
+                    <Text size="sm" color="dimmed">Contracted Hours: {contractedHours}</Text>
+                    <Text size="sm" color="dimmed">Address: {address}</Text>
                 </div>
             </div>
         </Card>
     );
 };
 
-export default function EmployeeList() {
-    const [employees, setEmployees] = useState<EmployeeProps[]>(employeesData);
-    const [selectedEmployee, setSelectedEmployee] = useState<EmployeeProps | null>(null);
-    const [modalOpened, setModalOpened] = useState<boolean>(false);
-    const [editMode, setEditMode] = useState<boolean>(false);
-    const [opened, setOpened] = useState(false);
-    const defaultEmployeeData: EmployeeProps = {
+const CreateEmployee = ({readOnly, btnLabel, onChange, submit, locationOptions, roleOptions, hideBtn, defaultEmployee}: {btnLabel?: string, readOnly?: boolean, defaultEmployee?: EmployeeProps, hideBtn?: boolean, onChange?: (data: EmployeeProps) => void, submit: (data: EmployeeProps) => void, locationOptions: string[], roleOptions: string[]}) => {
+    const guid = useId();
+    const defaultEmployeeData: EmployeeProps = defaultEmployee ?? {
+        employeeId: guid,
         firstName: '',
         lastName: '',
         email: '',
@@ -68,28 +52,190 @@ export default function EmployeeList() {
         contractedHours: 0,
         locations: [],
         roles: [],
-        imageUrl: avatar
     };
     const [employeeData, setEmployeeData] = useState<EmployeeProps>(defaultEmployeeData);
-    const locationOptions = ['London, United Kingdom', 'Stockholm, Sweden'];
-    const roleOptions = ['Chef', 'Cook', 'Waiter', 'Receptionist', 'Cleaner'];
 
     const handleInputChange = (field: keyof EmployeeProps, value: any) => {
         setEmployeeData(prev => ({ ...prev, [field]: value }));
+        onChange?.({ ...employeeData, [field]: value })
     };
 
     const handleMultiSelect = (field: keyof EmployeeProps, value: string[]) => {
         setEmployeeData(prev => ({ ...prev, [field]: value }));
+        onChange?.({ ...employeeData, [field]: value })
     };
 
-    const handleSubmit = () => {
-        setEmployees(prev => [...prev, employeeData]);
-        setEmployeeData(defaultEmployeeData);
+    return <form style={{flex: "1"}} onSubmit={(e) => { e.preventDefault(); submit(employeeData); setEmployeeData(defaultEmployeeData) }}>
+    <TextInput
+        label="First Name"
+        placeholder="Enter your first name"
+        value={employeeData.firstName}
+        onChange={(event) => handleInputChange('firstName', event.currentTarget.value)}
+        required
+        readOnly={readOnly}
+        mb="sm"
+    />
+    <TextInput
+        label="Last Name"
+        placeholder="Enter your last name"
+        value={employeeData.lastName}
+        onChange={(event) => handleInputChange('lastName', event.currentTarget.value)}
+        required
+        readOnly={readOnly}
+        mb="sm"
+    />
+    <TextInput
+        label="Email"
+        placeholder="Enter your email"
+        value={employeeData.email}
+        onChange={(event) => handleInputChange('email', event.currentTarget.value)}
+        required
+        readOnly={readOnly}
+        mb="sm"
+    />
+    <TextInput
+        label="Address"
+        placeholder="Enter your address"
+        value={employeeData.address}
+        onChange={(event) => handleInputChange('address', event.currentTarget.value)}
+        required
+        readOnly={readOnly}
+        mb="sm"
+    />
+    <DatePickerInput
+        label="Date of Birth"
+        placeholder="Select date of birth"
+        value={employeeData.dateOfBirth}
+        onChange={(date) => handleInputChange('dateOfBirth', date)}
+        valueFormat="DD-MM-YYYY"
+        required
+        readOnly={readOnly}
+        mb="sm"
+    />
+    <TextInput
+        label="Emergency Contact"
+        placeholder="Enter emergency contact"
+        value={employeeData.emergencyContact}
+        onChange={(event) => handleInputChange('emergencyContact', event.currentTarget.value)}
+        required
+        readOnly={readOnly}
+        mb="sm"
+    />
+    <DatePickerInput
+        label="Date Hired"
+        placeholder="Select date hired"
+        value={employeeData.dateHired}
+        onChange={(date) => handleInputChange('dateHired', date)}
+        valueFormat="DD-MM-YYYY"
+        required
+        mb="sm"
+    />
+    <NumberInput
+        label="Contracted Hours"
+        placeholder="Enter contracted hours"
+        value={employeeData.contractedHours}
+        onChange={(value) => handleInputChange('contractedHours', value)}
+        required
+        readOnly={readOnly}
+        mb="sm"
+    />
+    <MultiSelect
+        label="Locations"
+        placeholder="Select locations"
+        data={locationOptions}
+        value={employeeData.locations}
+        onChange={(value: string[]) => handleMultiSelect('locations', value)}
+        required
+        readOnly={readOnly}
+        mb="sm"
+    />
+    <MultiSelect
+        label="Roles"
+        placeholder="Select roles"
+        data={roleOptions}
+        value={employeeData.roles}
+        onChange={(value: string[]) => handleMultiSelect('roles', value)}
+        required
+        readOnly={readOnly}
+        mb="sm"
+    />
+    {!hideBtn &&
+    <Box style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+        <Button type="submit">{btnLabel ?? "Add Employee"}</Button>
+    </Box>}
+</form>
+}
+
+export default function EmployeeList() {
+    const [employees, setEmployees] = useState<EmployeeProps[]>([]);
+    const [selectedEmployee, setSelectedEmployee] = useState<EmployeeProps | null>(null);
+    const [modalOpened, setModalOpened] = useState<boolean>(false);
+    const [editMode, setEditMode] = useState<boolean>(false);
+    const [opened, setOpened] = useState(false);
+    const [openedFile, setOpenedFile] = useState(false);
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [filteredEmployees, setFilteredEmployees] = useState<EmployeeProps[]>([]); // Holds employees filtered by location
+    const [selectedLocation, setSelectedLocation] = useState(''); // Selected location from the dropdown
+    const [locationOptions, setLocationOptions] = useState([]);
+    const [uploadEmployeeFiles] = useMutation(UPLOAD_EMPLOYEE_FILES_MUTATION);
+    const [uploadEmployee] = useMutation(POST_EMPLOYEE);
+    const [validateEmployees, setValidateEmployees] = useState<EmployeeProps[]>([]);
+    const {data: fetchedEmpData} = useQuery(QUERY_EMPLOYEES)
+    const {data: locations} = useQuery(QUERY_LOCATIONS)
+
+    const roleOptions = ['Chef', 'Cook', 'Waiter', 'Receptionist', 'Cleaner'];
+
+    useEffect(() => {
+        if(fetchedEmpData && fetchedEmpData.employees) {
+            const employees = fetchedEmpData.employees.map((emp: any) => {
+                return {...emp, 
+                    dateOfBirth: new Date(emp.dateOfBirth),
+                    dateHired: emp.dateHired ? new Date(emp.dateHired) : new Date(),
+                    contractedHours: parseInt(emp.contractedHours)
+                }
+            })
+            setEmployees(employees)
+            setFilteredEmployees(employees);
+        }
+    }, [fetchedEmpData])
+
+    useEffect(() => {
+        if(locations && locations.locations) {
+            setLocationOptions(locations.locations.map((l: any) => l.name))
+        }
+    }, [locations])
+
+
+    const handleLocationChange = (location: any) => {
+        setSelectedLocation(location);
+        filterEmployeesByLocation(location);
+    };
+
+    // Filter employees by the selected location
+    const filterEmployeesByLocation = (location: string) => {
+        if (!location) {
+            setFilteredEmployees(employees); // Show all employees if no location is selected
+        } else {
+            setFilteredEmployees(employees.filter(employee => employee.locations.includes(location)));
+        }
+    };
+
+    const handleSubmit = async (data: EmployeeProps) => {
+        const pData = {
+            ...data,
+            dateOfBirth: data.dateOfBirth.toISOString(),
+            dateHired: data.dateHired.toISOString(),
+            contractedHours: data.contractedHours.toString(),
+        }
+        await uploadEmployee({variables: pData});
+        setEmployees(prev => [...prev, data]);
+        setFilteredEmployees(prev => [...prev, data]);
         setOpened(false);
     };
 
     const handleTileClick = (employee: EmployeeProps) => {
         setSelectedEmployee({ ...employee });
+        console.log("SELECTED EMPLOYEE", employee);
         setModalOpened(true);
     };
 
@@ -99,137 +245,136 @@ export default function EmployeeList() {
         setEditMode(false);
     };
 
-    const handleModalInputChange = (field: keyof EmployeeProps, value: any) => {
-        if (selectedEmployee) {
-            setSelectedEmployee(prev => prev ? { ...prev, [field]: value } : null);
-        }
-    };
-
     const handleSaveChanges = () => {
         if (selectedEmployee) {
-            // Update employee list with new details
             setEmployees(prev =>
                 prev.map(emp =>
                     emp.email === selectedEmployee.email ? selectedEmployee : emp
                 )
             );
             setEditMode(false);
-            handleCloseModal(); // Close modal after saving changes
+            handleCloseModal(); 
         }
     };
 
+    const handleFileChange = (files: any) => {
+        setSelectedFiles(files);
+    };
+
+
+    async function sendContract() {
+        if (!selectedFiles || selectedFiles.length === 0) {
+            console.error("No files selected");
+            return;
+        }
+    
+        try {
+            const { data } = await uploadEmployeeFiles({
+                variables: {
+                    files: ["tmp/contract1.docx","tmp/contract2.docx"],
+                },
+            });
+    
+            if (data && data.processEmployeeFiles) {
+                const newEmployees: any[] = data.processEmployeeFiles;
+                console.log("EMPLOYEES", newEmployees.map(emp => {
+                    return {...emp, 
+                        dateOfBirth: new Date(emp.dateOfBirth),
+                        dateHired: emp.dateHired ?? new Date(emp.dateHired),
+                        contractedHours: parseInt(emp.contractedHours)
+                    }
+                }));
+
+                setValidateEmployees(newEmployees.map(emp => {
+                    return {...emp, 
+                        employeeId: Math.random() * 100 + "ID",
+                        dateOfBirth: new Date(emp.dateOfBirth),
+                        dateHired: emp.dateHired ? new Date(emp.dateHired) : new Date(),
+                        contractedHours: parseInt(emp.contractedHours)
+                    }
+                }));
+                //setEmployees((prevEmployees) => [...prevEmployees, ...newEmployees]);
+            }
+        } catch (error) {
+            console.error("Error uploading files:", error);
+        }
+    }
+
     return (
-        <Container>
-            <div style={styles.header}>
+        <Container pt={"md"}>
+            <div style={{ ...styles.header, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Title order={2}>Manage Employees</Title>
-                <Button onClick={() => setOpened(true)}>Add Employee +</Button>
+                <Group align="center" gap={"md"}>
+                    <Button leftSection={<IconPlus />} onClick={() => setOpened(true)} style={{ marginRight: '10px' }}>Add Employee</Button>
+                    <Button leftSection={<IconEyePlus />} onClick={() => setOpenedFile(true)}>Smart Add Employee</Button>
+                </Group>
             </div>
 
+            <div style={{ marginTop: '20px', marginBottom: '20px', width: '200px' }}>
+                <Select
+                    label="Filter by Location"
+                    placeholder="Select location"
+                    value={selectedLocation}
+                    onChange={handleLocationChange}
+                    data={locationOptions} // Options come from state
+                    clearable
+                />
+            </div>
+            <Modal
+                opened={openedFile}
+                onClose={() => setOpenedFile(false)}
+                onChange={handleFileChange}
+                title="Add Employee Contract"
+                size="sm"
+            >
+                    <FileInput
+                        multiple
+                        label="Input Contract"
+                        placeholder=".doc, .pdf"
+                    />
+                    <Box style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                        <Button type="submit" onClick={sendContract}>Add Employee</Button>
+                    </Box>
+            </Modal>
             <Modal
                 opened={opened}
                 onClose={() => setOpened(false)}
                 title="Add New Employee"
                 size="xl"
             >
-                <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
-                    <TextInput
-                        label="First Name"
-                        placeholder="Enter your first name"
-                        value={employeeData.firstName}
-                        onChange={(event) => handleInputChange('firstName', event.currentTarget.value)}
-                        required
-                        mb="sm"
-                    />
-                    <TextInput
-                        label="Last Name"
-                        placeholder="Enter your last name"
-                        value={employeeData.lastName}
-                        onChange={(event) => handleInputChange('lastName', event.currentTarget.value)}
-                        required
-                        mb="sm"
-                    />
-                    <TextInput
-                        label="Email"
-                        placeholder="Enter your email"
-                        value={employeeData.email}
-                        onChange={(event) => handleInputChange('email', event.currentTarget.value)}
-                        required
-                        mb="sm"
-                    />
-                    <TextInput
-                        label="Address"
-                        placeholder="Enter your address"
-                        value={employeeData.address}
-                        onChange={(event) => handleInputChange('address', event.currentTarget.value)}
-                        required
-                        mb="sm"
-                    />
-                    <DatePickerInput
-                        label="Date of Birth"
-                        placeholder="Select date of birth"
-                        value={employeeData.dateOfBirth}
-                        onChange={(date) => handleInputChange('dateOfBirth', date)}
-                        valueFormat="DD-MM-YYYY"
-                        required
-                        mb="sm"
-                    />
-                    <TextInput
-                        label="Emergency Contact"
-                        placeholder="Enter emergency contact"
-                        value={employeeData.emergencyContact}
-                        onChange={(event) => handleInputChange('emergencyContact', event.currentTarget.value)}
-                        required
-                        mb="sm"
-                    />
-                    <DatePickerInput
-                        label="Date Hired"
-                        placeholder="Select date hired"
-                        value={employeeData.dateHired}
-                        onChange={(date) => handleInputChange('dateHired', date)}
-                        valueFormat="DD-MM-YYYY"
-                        required
-                        mb="sm"
-                    />
-                    <NumberInput
-                        label="Contracted Hours"
-                        placeholder="Enter contracted hours"
-                        value={employeeData.contractedHours}
-                        onChange={(value) => handleInputChange('contractedHours', value)}
-                        required
-                        mb="sm"
-                    />
-                    <MultiSelect
-                        label="Locations"
-                        placeholder="Select locations"
-                        data={locationOptions}
-                        value={employeeData.locations}
-                        onChange={(value: string[]) => handleMultiSelect('locations', value)}
-                        required
-                        mb="sm"
-                    />
-                    <MultiSelect
-                        label="Roles"
-                        placeholder="Select roles"
-                        data={roleOptions}
-                        value={employeeData.roles}
-                        onChange={(value: string[]) => handleMultiSelect('roles', value)}
-                        required
-                        mb="sm"
-                    />
-                    <Box style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-                        <Button type="submit">Add Employee</Button>
-                    </Box>
-                </form>
+                <CreateEmployee locationOptions={locationOptions} roleOptions={roleOptions} submit={handleSubmit} />
+            </Modal>
+            <Modal
+                opened={validateEmployees.length > 0}
+                onClose={() => setValidateEmployees([])}
+                title="Validate New Employees"
+                size="xl"
+            >
+                <Accordion variant="separated">
+                    {validateEmployees.map(emp => {
+                        return <Accordion.Item key={emp.employeeId} value={JSON.stringify(emp)}>
+                            <Accordion.Control>{emp.firstName + " " + emp.lastName}</Accordion.Control>
+                            <Accordion.Panel>
+                                <CreateEmployee submit={() => {}} defaultEmployee={emp} hideBtn={true} locationOptions={locationOptions} roleOptions={roleOptions} />
+                            </Accordion.Panel>
+                        </Accordion.Item>
+                    })}
+                </Accordion>
+                <Button mt={"md"} onClick={async () => {
+                    for(let emp of validateEmployees) {
+                        await handleSubmit(emp);
+                    }
+                    setValidateEmployees([])
+                }}>Create employees</Button>
             </Modal>
 
-            <Stack justify="lg" style={{ marginTop: '20px' }}>
-                {employees.map((employee) => (
+            <Stack justify="lg">
+                {filteredEmployees.map((employee) => (
                     <EmployeeTile
                         key={employee.email}
                         firstName={employee.firstName}
                         lastName={employee.lastName}
                         roles={employee.roles}
-                        imageUrl={employee.imageUrl}
                         locations={employee.locations}
                         contractedHours={employee.contractedHours}
                         emergencyContact={employee.emergencyContact}
@@ -246,92 +391,18 @@ export default function EmployeeList() {
                 opened={modalOpened}
                 onClose={handleCloseModal}
                 title="Employee Details"
-                size="lg"
+                size="xl"
             >
                 {selectedEmployee && (
-                    <Flex direction="row" align="flex-start">
+                    <Flex direction="row" align="flex-start" w={"100%"}>
                         <Image
-                            src={selectedEmployee.imageUrl}
+                            fallbackSrc={"https://placehold.co/400x400?text="+selectedEmployee.firstName![0]+selectedEmployee.lastName![0]}
+                            src={null}
                             height={100}
                             width={100}
                             style={{ borderRadius: '50%', marginRight: '20px' }}
                         />
-                        <Stack justify="sm" style={{ flex: 1 }}>
-                            <TextInput
-                                label="First Name"
-                                value={selectedEmployee.firstName}
-                                readOnly={!editMode}
-                                onChange={(e) => handleModalInputChange('firstName', e.target.value)}
-                            />
-                            <TextInput
-                                label="Last Name"
-                                value={selectedEmployee.lastName}
-                                readOnly={!editMode}
-                                onChange={(e) => handleModalInputChange('lastName', e.target.value)}
-                            />
-                            <DatePickerInput
-                                label="Date of Birth"
-                                value={selectedEmployee.dateOfBirth}
-                                readOnly={!editMode}
-                                onChange={(date) => handleModalInputChange('dateOfBirth', date)}
-                                valueFormat="DD-MM-YYYY"
-                            />
-                            <TextInput
-                                label="Email"
-                                value={selectedEmployee.email}
-                                readOnly={!editMode}
-                                onChange={(e) => handleModalInputChange('email', e.target.value)}
-                            />
-                            <TextInput
-                                label="Address"
-                                value={selectedEmployee.address}
-                                readOnly={!editMode}
-                                onChange={(e) => handleModalInputChange('address', e.target.value)}
-                            />
-                            <TextInput
-                                label="Emergency Contact"
-                                value={selectedEmployee.emergencyContact}
-                                readOnly={!editMode}
-                                onChange={(e) => handleModalInputChange('emergencyContact', e.target.value)}
-                            />
-                            <DatePickerInput
-                                label="Date Hired"
-                                value={selectedEmployee.dateHired}
-                                readOnly={!editMode}
-                                onChange={(date) => handleModalInputChange('dateHired', date)}
-                                valueFormat="DD-MM-YYYY"
-                            />
-                            <NumberInput
-                                label="Contracted Hours"
-                                value={selectedEmployee.contractedHours}
-                                readOnly={!editMode}
-                                onChange={(value) => handleModalInputChange('contractedHours', value)}
-                            />
-                            <MultiSelect
-                                label="Locations"
-                                data={locationOptions}
-                                value={selectedEmployee.locations}
-                                readOnly={!editMode}
-                                onChange={(value) => handleModalInputChange('locations', value)}
-                            />
-                            <MultiSelect
-                                label="Roles"
-                                data={roleOptions}
-                                value={selectedEmployee.roles}
-                                readOnly={!editMode}
-                                onChange={(value) => handleModalInputChange('roles', value)}
-                            />
-                            <Flex justify="flex-end" style={{ marginTop: '20px' }}>
-                                {editMode ? (
-                                    <>
-                                        <Button onClick={handleSaveChanges}>Save</Button>
-                                        <Button onClick={() => setEditMode(false)} style={{ marginLeft: '10px' }}>Cancel</Button>
-                                    </>
-                                ) : (
-                                    <Button onClick={() => setEditMode(true)}>Edit</Button>
-                                )}
-                            </Flex>
-                        </Stack>
+                        <CreateEmployee btnLabel='Save Edit' defaultEmployee={selectedEmployee} locationOptions={locationOptions} roleOptions={roleOptions} submit={handleSaveChanges} />
                     </Flex>
                 )}
             </Modal>
@@ -358,4 +429,3 @@ const styles = {
         marginBottom: '20px',
     },
 };
-
