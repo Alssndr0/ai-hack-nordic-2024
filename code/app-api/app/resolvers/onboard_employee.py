@@ -7,6 +7,21 @@ from .employee_roles import Mutation as EmployeeRoleMutation, EmployeeRoleCreate
 from ..types import EmployeeOnboardingInput, OnboardEmployeeResponse
 from ..context import Info
 import uuid
+from .. import couchbase as cb, env
+
+# Function to get role_id from role_name
+def get_role_id(role_name: str) -> str:
+    query = f"""
+    SELECT id
+    FROM `{env.get_couchbase_bucket()}`._default.roles
+    WHERE LOWER(name) = LOWER('{role_name}')
+    """
+    result = cb.exec(env.get_couchbase_conf(), query)
+    if result:
+        print(result)
+        return result[0]['id']
+    else:
+        raise ValueError(f"Role name '{role_name}' not found in roles table.")
 
 @strawberry.type
 class Mutation:
@@ -36,11 +51,11 @@ class Mutation:
         ]
         await EmployeeLocationMutation().employee_locations_create(employee_location_inputs)
 
-        # Insert employee roles
-        employee_role_inputs = [
-            EmployeeRoleCreateInput(employee_id=input.employee_id, role_id=role_id)
-            for role_id in input.roles
-        ]
+        employee_role_inputs = []
+        for role_name in input.roles:
+            role_id = get_role_id(role_name)  # Get role_id from role_name
+            employee_role_inputs.append(EmployeeRoleCreateInput(employee_id=input.employee_id, role_id=role_id))
+        
         await EmployeeRoleMutation().employee_roles_create(employee_role_inputs)
 
         return OnboardEmployeeResponse(

@@ -127,8 +127,21 @@ class Mutation:
                 emergency_contact="Jane Doe, +4487654321",
                 dateHired="2023-01-01",
                 contracted_hours="40",
-                locations=["location_1"],
-                roles=["Cashier", "Waiter"]
+                locations=["1"],
+                roles=["Receptionist", "Waiter"]
+            ),
+            EmployeeData(
+                first_name="Saurabh",
+                last_name="Raj",
+                phone_number="+4434567890",
+                email="john.doe@example.com",
+                address="123 Main St, Kensington",
+                date_of_birth="1985-05-15",
+                emergency_contact="Jane Doe, +4487654321",
+                dateHired="2023-01-01",
+                contracted_hours="40",
+                locations=["1"],
+                roles=["Receptionist", "Waiter"]
             ),
             EmployeeData(
                 first_name="Alice",
@@ -139,9 +152,115 @@ class Mutation:
                 date_of_birth="1990-08-20",
                 emergency_contact="Bob Smith, +4434567890",
                 dateHired="2023-02-01",
-                contracted_hours="20",
-                locations=["location_2"],
-                roles=["Cook", "Manager"]
+                contracted_hours="500",
+                locations=["1"],
+                roles=["Chef"]
+            ),
+
+            EmployeeData(
+                first_name="Alessandro",
+                last_name="Alviani",
+                phone_number="+4487654321",
+                email="alice.smith@example.com",
+                address="456 Elm St, Kensington",
+                date_of_birth="1990-08-20",
+                emergency_contact="Bob Smith, +4434567890",
+                dateHired="2023-02-01",
+                contracted_hours="500",
+                locations=["1"],
+                roles=["Chef"]
+            ),
+            EmployeeData(
+                first_name="Sami",
+                last_name="S",
+                phone_number="+4487654321",
+                email="alice.smith@example.com",
+                address="456 Elm St, Kensington",
+                date_of_birth="1990-08-20",
+                emergency_contact="Bob Smith, +4434567890",
+                dateHired="2023-02-01",
+                contracted_hours="500",
+                locations=["1"],
+                roles=[ "Chef"]
+            ),
+
+            EmployeeData(
+                first_name="William",
+                last_name="Lundqvist",
+                phone_number="+4487654321",
+                email="alice.smith@example.com",
+                address="456 Elm St, Kensington",
+                date_of_birth="1990-08-20",
+                emergency_contact="Bob Smith, +4434567890",
+                dateHired="2023-02-01",
+                contracted_hours="500",
+                locations=["1"],
+                roles=["Waiter"]
+            ),
+            EmployeeData(
+                first_name="bob",
+                last_name="a",
+                phone_number="+4487654321",
+                email="alice.smith@example.com",
+                address="456 Elm St, Kensington",
+                date_of_birth="1990-08-20",
+                emergency_contact="Bob Smith, +4434567890",
+                dateHired="2023-02-01",
+                contracted_hours="500",
+                locations=["1"],
+                roles=["waiter"]
+            ),
+                        EmployeeData(
+                first_name="Rakesh",
+                last_name="P.",
+                phone_number="+4487654321",
+                email="alice.smith@example.com",
+                address="456 Elm St, Kensington",
+                date_of_birth="1990-08-20",
+                emergency_contact="Bob Smith, +4434567890",
+                dateHired="2023-02-01",
+                contracted_hours="500",
+                locations=["1"],
+                roles=["waiter"]
+            ),
+                        EmployeeData(
+                first_name="Shawn",
+                last_name="J",
+                phone_number="+4487654321",
+                email="alice.smith@example.com",
+                address="456 Elm St, Kensington",
+                date_of_birth="1990-08-20",
+                emergency_contact="Bob Smith, +4434567890",
+                dateHired="2023-02-01",
+                contracted_hours="500",
+                locations=["1"],
+                roles=["Receptionist"]
+            ),
+                        EmployeeData(
+                first_name="Tommy",
+                last_name="L",
+                phone_number="+4487654321",
+                email="alice.smith@example.com",
+                address="456 Elm St, Kensington",
+                date_of_birth="1990-08-20",
+                emergency_contact="Bob Smith, +4434567890",
+                dateHired="2023-02-01",
+                contracted_hours="500",
+                locations=["1"],
+                roles=["Receptionist"]
+            ),
+                        EmployeeData(
+                first_name="Hugh",
+                last_name="her",
+                phone_number="+4487654321",
+                email="alice.smith@example.com",
+                address="456 Elm St, Kensington",
+                date_of_birth="1990-08-20",
+                emergency_contact="Bob Smith, +4434567890",
+                dateHired="2023-02-01",
+                contracted_hours="500",
+                locations=["1"],
+                roles=["Chef"]
             )
         ]
         await asyncio.sleep(2)
