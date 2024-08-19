@@ -15,6 +15,7 @@ class EmployeeData:
     roles: list[str]
 
 sample_json = {
+  "input": {
     "business": {
       "id": "1",
       "location_id": "1",
@@ -231,7 +232,7 @@ sample_json = {
         "location_id": "1",
         "start_time": "11:00",
         "end_time": "17:00",
-        "date": "2023-11-06"
+        "date": "2024-08-19"
       },
       {
         "id": "2",
@@ -240,7 +241,7 @@ sample_json = {
         "location_id": "1",
         "start_time": "17:00",
         "end_time": "23:00",
-        "date": "2023-11-06"
+        "date": "2024-08-19"
       },
       {
         "id": "3",
@@ -249,7 +250,7 @@ sample_json = {
         "location_id": "1",
         "start_time": "10:00",
         "end_time": "17:00",
-        "date": "2023-11-11"
+        "date": "2024-08-24"
       },
       {
         "id": "4",
@@ -258,11 +259,11 @@ sample_json = {
         "location_id": "1",
         "start_time": "17:00",
         "end_time": "00:00",
-        "date": "2023-11-11"
+        "date": "2024-08-24"
       }
     ]
   }
-
+}
 
 
 employee_data_list = [

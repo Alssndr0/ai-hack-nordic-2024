@@ -1,29 +1,30 @@
 from datetime import datetime, timedelta
 from ..resolvers.shifts import ShiftCreateInput 
 
-def generate_shifts_for_year(start_date: str, shift_templates: list[ShiftCreateInput]) -> list[ShiftCreateInput]:
+def generate_shifts_for_current_week(shift_templates: list) -> list:
     """
-    Generate shifts for an entire year starting from the given start date.
+    Generate shifts for the current week based on the provided shift templates.
 
-    :param start_date: The starting date for generating shifts (format: 'YYYY-MM-DD').
     :param shift_templates: A list of dictionaries, each representing a shift template.
                             Each template should contain 'shift_name', 'location_id', 'start_time', and 'end_time'.
-    :return: A list of dictionaries, each representing a shift with a unique date.
+    :return: A list of dictionaries, each representing a shift with a date within the current week.
     """
-    start_date = datetime.strptime(start_date, '%Y-%m-%d')
+    # Get the current date and calculate the start of the current week (Monday)
+    today = datetime.today()
+    start_of_week = today - timedelta(days=today.weekday())  # Monday of the current week
+
     shifts = []
 
-    for i in range(365):  # Loop for each day in a year
-        current_date = start_date + timedelta(days=i)
-        for template in shift_templates:
-            shift = {
-                'id': f"{template['shift_name'].replace(' ', '_').lower()}_{current_date.strftime('%Y%m%d')}",
-                'shift_name': template['shift_name'],
-                'location_id': template['location_id'],
-                'start_time': template['start_time'],
-                'end_time': template['end_time'],
-                'date': current_date.strftime('%Y-%m-%d')
-            }
-            shifts.append(shift)
+    for i, template in enumerate(shift_templates):
+        current_date = start_of_week + timedelta(days=i % 7)  # Loop within the week
+        shift = {
+            'id': template['id'],
+            'shift_name': template['shift_name'],
+            'location_id': template['location_id'],
+            'start_time': template['start_time'],
+            'end_time': template['end_time'],
+            'date': current_date.strftime('%Y-%m-%d')
+        }
+        shifts.append(shift)
 
     return shifts

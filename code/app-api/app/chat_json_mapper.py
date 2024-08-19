@@ -10,7 +10,7 @@ from .resolvers.roles import Mutation as RoleMutation
 from .resolvers.staff_requirements import Mutation as StaffRequirementMutation
 from .context import get_context
 from pydantic import BaseModel
-from .services.create_dates_for_shifts import generate_shifts_for_year
+from .services.create_dates_for_shifts import generate_shifts_for_current_week
 
 async def create_business(business_data):
     # Assuming you have a Mutation for creating business entities
