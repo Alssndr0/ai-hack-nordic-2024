@@ -10,7 +10,7 @@ from .resolvers.roles import Mutation as RoleMutation
 from .resolvers.staff_requirements import Mutation as StaffRequirementMutation
 from .context import get_context
 from pydantic import BaseModel
-
+from .services.create_dates_for_shifts import generate_shifts_for_year
 
 async def create_business(business_data):
     # Assuming you have a Mutation for creating business entities
@@ -62,7 +62,9 @@ async def map_json_to_db(data):
 
     # Create Shifts
     if 'shifts' in data:
-        await create_shifts(shifts_data=data.get('shifts', []))
+        shifts_data=data.get('shifts', [])
+        #generated_shifts = generate_shifts_for_year("2023-01-01", shifts_data)
+        await create_shifts(shifts_data)
 
     # Create Roles
     if 'roles' in data:

@@ -36,7 +36,7 @@ def get_schedules(year=2024, week=1):
     JOIN {env.get_couchbase_bucket()}._default.schedules AS sc ON e.employee_id = sc.employee_id
     JOIN {env.get_couchbase_bucket()}._default.shifts AS sh ON sc.shift_id = sh.shift_id
     JOIN {env.get_couchbase_bucket()}._default.roles AS ro ON sc.role_id = ro.id
-    
+    WHERE sh.date BETWEEN '{start_date}' AND '{end_date}'
     """
     result = cb.exec(
         env.get_couchbase_conf(),

@@ -96,7 +96,7 @@ class Mutation:
     async def convert_summary_to_json_and_populate_db(self, summary_input: SummaryInput) -> Response:
         try:
             # Prepare the prompt for ChatGPT to convert the summary to JSON
-            scheduler_system = "You are a helpful assistant. Based on the provided information you will return a structured representation of all the given business attributes, along with a schedule where roles are assigned per each day and return it in a json format. Do not leave any attribute empty, remember to fill all the primary and foreign IDs."
+            scheduler_system = "You are a helpful assistant. Based on the provided information you will return a structured representation of all the given business attributes, and return it in a json format. Do not leave any attribute empty, remember to fill all the primary and foreign IDs. There is a 'date' field in the Shifts section, input some dummy dates to populate the shifts entries."
  
             history = [{"role": "system", "content": scheduler_system}]
 
