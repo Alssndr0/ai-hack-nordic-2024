@@ -67,6 +67,7 @@ export const SCHEDULE_TEMPLATE_QUERY = gql`
       startTime,
       endTime,
       roleName,
+      locationId,
       employeesRequired
     } 
   }
