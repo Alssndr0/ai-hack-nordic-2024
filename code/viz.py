@@ -163,7 +163,7 @@ def train_animate():
     iterations = len(employee_mutation_min)
 
     # Create the animation
-    ani = FuncAnimation(fig, animate, frames=iterations, interval=350)
+    ani = FuncAnimation(fig, animate, frames=iterations, interval=350, repeat = False)
 
     # Display the animation
     plt.tight_layout()
