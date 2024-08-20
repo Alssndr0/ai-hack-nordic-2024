@@ -109,7 +109,6 @@ export const dayNumToKey: Record<number, string> = {
 
 const createSchedule = (template: any, weekData: any[]) => {
     weekData.forEach(employeeShift => {
-        console.log(new Date(employeeShift.date).getDay(), new Date(employeeShift.date), "DATE", employeeShift.date, employeeShift);
         const dayName = dayNumToKey[new Date(employeeShift.date).getDay()];
         if(!template[dayName]) return
         const endTime =  employeeShift.endTime == "00:00" ? "24:00" : employeeShift.endTime
@@ -120,7 +119,6 @@ const createSchedule = (template: any, weekData: any[]) => {
         role.amount ++;
         role.employees.push({firstName: employeeShift.firstName, lastName: employeeShift.lastName})
     });
-    console.log("SCHED", template);
     return template;
 }
 
@@ -228,7 +226,7 @@ export default function Schedule() {
         if(schedData.getSchedulesByWeek.length == 0) {
             setWeekGenerated(false);
         }
-        console.log(filledObj)
+        console.log("DATA", obj, filledObj);
         setWeekInfo(filledObj); 
     }, [templateData, schedData, loadingSched])
     

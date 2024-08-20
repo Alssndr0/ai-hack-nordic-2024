@@ -192,8 +192,8 @@ export default function Onboarding(props: WrapperProps) {
                         return <Accordion.Item value={loc.id} key={"loc:"+loc.id}>
                             <Accordion.Control>{loc.name} {loc.address}</Accordion.Control>
                             <Accordion.Panel>
-                                <TextInput label="Name" value={loc.name} />
-                                <TextInput label="Address" value={loc.address} />
+                                <TextInput mb={"sm"} label="Name" value={loc.name} />
+                                <TextInput mb={"sm"} label="Address" value={loc.address} />
                                 <Accordion variant="separated">
                                     {[1,2,3,4,5,6,7].map(dayId => {
                                         const openingHours = onboardData.locationOpeningHours.find(v => v.day_of_week == dayId && v.location_id == loc.id);
@@ -220,7 +220,7 @@ export default function Onboarding(props: WrapperProps) {
                                                 </Group>
                                                 <Accordion variant="separated"></Accordion>
                                                 {todaysShifts.map(ts => {
-                                                    return <Accordion.Item value={"shiftId: " + ts.shift_id + loc.id}>
+                                                    return <Accordion.Item value={"shiftId: " + ts.shift_id + loc.id + dayId}>
                                                             <Accordion.Control>{ts.start_time} - {ts.end_time}</Accordion.Control>
                                                             <Accordion.Panel>
                                                                 <Stack gap={"sm"}>
