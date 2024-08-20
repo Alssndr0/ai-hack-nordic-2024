@@ -96,19 +96,20 @@ function getUniqueRoles(weekInfo: string) {
 }
 
 
-const dayNumToKey: Record<number, string> = {
+export const dayNumToKey: Record<number, string> = {
     1: "mon",
     2: "tue",
     3: "wed",
     4: "thu",
     5: "fri",
     6: "sat",
-    7: "sun",
+    0: "sun",
 }
 
 
 const createSchedule = (template: any, weekData: any[]) => {
     weekData.forEach(employeeShift => {
+        console.log(new Date(employeeShift.date).getDay(), new Date(employeeShift.date), "DATE", employeeShift.date, employeeShift);
         const dayName = dayNumToKey[new Date(employeeShift.date).getDay()];
         if(!template[dayName]) return
         const endTime =  employeeShift.endTime == "00:00" ? "24:00" : employeeShift.endTime
@@ -200,7 +201,6 @@ export default function Schedule() {
     ]
 
     const {loading, error, data: templateData} = useQuery(SCHEDULE_TEMPLATE_QUERY)
-    const [shift, setShift] = useState<any>(null)
 
     const [weekInfo, setWeekInfo] = useState<any>(null)
 
@@ -271,17 +271,7 @@ export default function Schedule() {
 
     const [activeDays, setActiveDays] = useState(allDays)
     const theme = useMantineTheme();
-    const [smallestTime, largestTime, smallestTimeStr, largestTimeStr] = getMinMaxTime(weekInfo);
-    const dayLength = largestTime - smallestTime;
     return <Flex w={"100%"} h={"100vh"} py={"lg"} gap={"md"}>
-        <Modal title={"Shift"} opened={!!shift} onClose={() => setShift(null)}>
-            {shift && <>
-            <Stack gap={"sm"}>
-                <Text>{shift.employee.firstName + " " + shift.employee.lastName}</Text>
-                <Rating count={2} emptySymbol={getEmptyIcon} fullSymbol={getFullIcon} highlightSelectedOnly />
-            </Stack>
-            </>}
-        </Modal>
         <Flex direction="column" w={rem(300)} gap={"md"}>
             <Paper radius={"md"} py={"md"} withBorder w={"100%"} mih={rem(300)}>
                 <Center>
@@ -350,75 +340,93 @@ export default function Schedule() {
                     </Flex>
                     <Flex flex={1} gap={"sm"} justify={"stretch"} h={"100%"} w={"100%"}>
                         {(!weekInfo) && <Skeleton visible={true}/>}
-                        {(weekInfo) && activeDays.map(ad => {
-                            const info = weekInfo[ad.value];
-                            if(!info) {
-                                return <Stack key={ad.value} flex={1}>
-                                    <Paper opacity={0.8} withBorder radius={"md"} w={"100%"} h={"100%"} style={{overflow: "hidden"}}>
-                                        <Flex align={"stretch"} h={"100%"} w={"100%"}>
-                                            <Flex gap={"xs"} direction={"column"} w={"1.6rem"} p={"xs"} align={"center"}>
-                                                <Text className="time" opacity={0.7}>{smallestTimeStr}</Text>
-                                                <Divider orientation="vertical" flex={1} />
-                                                <Text className="time" opacity={0.7}>{largestTimeStr}</Text>
-                                            </Flex>
-                                            <Flex flex={"1"} w={"2rem"} align={"stretch"}>
-                                                <Center flex={"1"}>
-                                                    <Title opacity={0.6} order={3} className="time">Closed</Title>
-                                                </Center>
-                                            </Flex>
-                                        </Flex>
-                                    </Paper>
-                                </Stack>
-                            }
-                            return <Stack pos={"relative"} flex={1} gap={"1%"}>
-                                {info.shifts.map((shift: any, i: number) => {
-                                    const start = timetoMinutes(shift.start);
-                                    const end = timetoMinutes(shift.end);
-                                    const lengthMin = end-start;
-                                    const startPercent = ((start - smallestTime) / dayLength);
-                                    const lengthPercent = (lengthMin / dayLength);
-                                    return (
-                                    <Paper key={ad.value+shift.start+shift.end+i+Math.random()} pos={"absolute"} top={`${startPercent*100}%`} withBorder radius={"md"} w={"100%"} h={`${lengthPercent * 100}%`} style={{overflow: "hidden"}}>
-                                        <Flex align={"stretch"} h={"100%"} w={"100%"}>
-                                            <Flex gap={"xs"} direction={"column"} w={"1.6rem"} p={"xs"} align={"center"}>
-                                                <Text className="time" opacity={0.7}>{shift.start}</Text>
-                                                <Divider orientation="vertical" flex={1} />
-                                                <Text className="time" opacity={0.7}>{shift.end}</Text>
-                                            </Flex>
-                                            <Flex flex={"1"} w={"2rem"} align={"stretch"}>
-                                                {shift.roles.map((role: any) => {
-                                                    if(!weekGenerated) {
-                                                        return <Box w={"100%"} h={"100%"} bg={"lightgray"} />
-                                                    }
-                                                    const grad = roleColors[role.value];
-                                                    return <React.Fragment key={role.value+ad.value+shift.start+shift.end+Math.random()}>
-                                                        <Flex direction={"row"} align="strech" flex={"1"}>
-                                                            {Array(role.expected).fill(0).map((num: any, i: number) => {
-                                                                return <React.Fragment key={role.value+ad.value+shift.start+shift.end+i+Math.random()}>
-                                                                    <Tooltip label={i >= role.amount ? role.value + " Needed" : role.employees[i].firstName + " " + role.employees[i].lastName}>
-                                                                        <Group style={{cursor: "pointer"}} onClick={() => setShift({shift, employee: role.employees[i], role: role.value})} bg={i >= role.amount ? "red" : grad} flex={1}>
-                                                                            {i >= role.amount && <Center w={"100%"}>
-                                                                                <IconAlertCircle color="white" />
-                                                                            </Center>}
-                                                                        </Group>
-                                                                    </Tooltip>
-                                                                    {i != role.expected-1 && <Divider orientation="vertical" />}
-                                                                </React.Fragment>
-                                                            })}
-                                                        </Flex>
-                                                        {i != shift.roles.length && <Divider orientation="vertical" />}
-                                                    </React.Fragment>;
-                                                })}
-                                            </Flex>
-                                        </Flex>
-                                    </Paper>
-                                    )
-                                })}
-                        </Stack>
-                        })}
+                        <ScheduleData roleColors={roleColors} weekGenerated={weekGenerated} weekInfo={weekInfo} activeDays={activeDays} />
                     </Flex>
                 </Flex>
             </Paper>
         </Flex>
     </Flex>
+}
+
+const ScheduleData = ({weekInfo, activeDays, weekGenerated, roleColors}: any) => {
+    const [shift, setShift] = useState<any>(null)
+    const [smallestTime, largestTime, smallestTimeStr, largestTimeStr] = getMinMaxTime(weekInfo);
+    const dayLength = largestTime - smallestTime;
+    if(!weekInfo) return <></>;
+    return activeDays.map((ad: any) => {
+        const info = weekInfo[ad.value];
+        if(!info) {
+            return <Stack key={ad.value} flex={1}>
+                <Paper opacity={0.8} withBorder radius={"md"} w={"100%"} h={"100%"} style={{overflow: "hidden"}}>
+                    <Flex align={"stretch"} h={"100%"} w={"100%"}>
+                        <Flex gap={"xs"} direction={"column"} w={"1.6rem"} p={"xs"} align={"center"}>
+                            <Text className="time" opacity={0.7}>{smallestTimeStr}</Text>
+                            <Divider orientation="vertical" flex={1} />
+                            <Text className="time" opacity={0.7}>{largestTimeStr}</Text>
+                        </Flex>
+                        <Flex flex={"1"} w={"2rem"} align={"stretch"}>
+                            <Center flex={"1"}>
+                                <Title opacity={0.6} order={3} className="time">Closed</Title>
+                            </Center>
+                        </Flex>
+                    </Flex>
+                </Paper>
+            </Stack>
+        }
+        return <>
+        <Modal title={"Shift"} opened={!!shift} onClose={() => setShift(null)}>
+            {shift && <>
+            <Stack gap={"sm"}>
+                <Text>{shift.employee.firstName + " " + shift.employee.lastName}</Text>
+                <Rating count={2} emptySymbol={getEmptyIcon} fullSymbol={getFullIcon} highlightSelectedOnly />
+            </Stack>
+            </>}
+        </Modal>
+        <Stack pos={"relative"} flex={1} gap={"1%"}>
+            {info.shifts.map((shift: any, i: number) => {
+                const start = timetoMinutes(shift.start);
+                const end = timetoMinutes(shift.end);
+                const lengthMin = end-start;
+                const startPercent = ((start - smallestTime) / dayLength);
+                const lengthPercent = (lengthMin / dayLength);
+                return (
+                <Paper key={ad.value+shift.start+shift.end+i} pos={"absolute"} top={`${startPercent*100}%`} withBorder radius={"md"} w={"100%"} h={`${lengthPercent * 100}%`} style={{overflow: "hidden"}}>
+                    <Flex align={"stretch"} h={"100%"} w={"100%"}>
+                        <Flex gap={"xs"} direction={"column"} w={"1.6rem"} p={"xs"} align={"center"}>
+                            <Text className="time" opacity={0.7}>{shift.start}</Text>
+                            <Divider orientation="vertical" flex={1} />
+                            <Text className="time" opacity={0.7}>{shift.end}</Text>
+                        </Flex>
+                        <Flex flex={"1"} w={"2rem"} align={"stretch"}>
+                            {shift.roles.map((role: any, roleI: number) => {
+                                if(!weekGenerated) {
+                                    return <Box w={"100%"} h={"100%"} bg={"lightgray"} />
+                                }
+                                const grad = roleColors[role.value];
+                                return <React.Fragment key={roleI+role.value+ad.value+shift.start+shift.end}>
+                                    <Flex direction={"row"} align="strech" flex={"1"}>
+                                        {Array(role.expected).fill(0).map((num: any, i: number) => {
+                                            return <React.Fragment key={roleI+i+role.value+ad.value+shift.start+shift.end+i}>
+                                                <Tooltip label={i >= role.amount ? role.value + " Needed" : role.employees[i].firstName + " " + role.employees[i].lastName}>
+                                                    <Group style={{cursor: "pointer"}} onClick={() => setShift({shift, employee: role.employees[i], role: role.value})} bg={i >= role.amount ? "red" : grad} flex={1}>
+                                                        {i >= role.amount && <Center w={"100%"}>
+                                                            <IconAlertCircle color="white" />
+                                                        </Center>}
+                                                    </Group>
+                                                </Tooltip>
+                                                {i != role.expected-1 && <Divider orientation="vertical" />}
+                                            </React.Fragment>
+                                        })}
+                                    </Flex>
+                                    {i != shift.roles.length && <Divider orientation="vertical" />}
+                                </React.Fragment>;
+                            })}
+                        </Flex>
+                    </Flex>
+                </Paper>
+                )
+            })}
+    </Stack>
+    </>
+    })
 }

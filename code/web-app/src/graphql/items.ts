@@ -28,7 +28,8 @@ export const CHAT_ONBOARD_FINISH = gql`
   mutation ChatOnboarding ($human: [String!]!, $chatbot: [String!]!, $summary: String!){
     convertSummaryToJsonAndPopulateDb(summaryInput: {human: $human, chatbot: $chatbot, summary: $summary}) {
       id,
-      status
+      status,
+      jsonOutput
     }
   }
 `;

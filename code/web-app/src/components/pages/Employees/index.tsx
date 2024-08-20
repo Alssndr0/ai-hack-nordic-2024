@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import { Card, Text, Image, Stack, Modal, Button, Container, Title, TextInput, NumberInput, MultiSelect, Box, Flex, FileInput, Select, Accordion, Group } from '@mantine/core';
+import { Card, Text, Image, Stack, Modal, Button, Container, Title, TextInput, NumberInput, MultiSelect, Box, Flex, FileInput, Select, Accordion, Group, Skeleton, rem } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { useMutation, useQuery } from '@apollo/client';
 import { POST_EMPLOYEE, QUERY_EMPLOYEES, QUERY_LOCATIONS, UPLOAD_EMPLOYEE_FILES_MUTATION } from "../../../graphql/items";
@@ -369,6 +369,7 @@ export default function EmployeeList() {
             </Modal>
 
             <Stack justify="lg">
+                {!fetchedEmpData && <Skeleton mih={rem(200)} />}
                 {filteredEmployees.map((employee) => (
                     <EmployeeTile
                         key={employee.email}

@@ -1,7 +1,7 @@
-import { Button, Center, Text, Flex, Group, Paper, rem, Stack, Title, TextInput, Stepper, TagsInput, Accordion, Divider, RangeSlider, NumberInput, SegmentedControl, Table, Checkbox, UnstyledButton, Container, Textarea, Loader, Switch, Tabs, Input, ActionIcon, Modal } from "@mantine/core";
+import { Button, Center, Text, Flex, Group, Paper, rem, Stack, Title, TextInput, Stepper, TagsInput, Accordion, Divider, RangeSlider, NumberInput, SegmentedControl, Table, Checkbox, UnstyledButton, Container, Textarea, Loader, Switch, Tabs, Input, ActionIcon, Modal, MultiSelect } from "@mantine/core";
 import { WrapperProps } from "../Wrapper/Wrapper";
 import { useEffect, useRef, useState } from "react";
-import { TimeInput } from '@mantine/dates';
+import { DateTimePicker, TimeInput } from '@mantine/dates';
 import { useForm, UseFormReturnType } from '@mantine/form';
 import { randomId, useDisclosure } from "@mantine/hooks";
 import React from "react";
@@ -13,9 +13,52 @@ import { useQuery, useMutation } from '@apollo/client'
 import { userInfo } from "os";
 import Markdown from 'react-markdown'
 import config from '../../config';
+import { find } from "../../utils/util";
+import { dayNumToKey } from "../pages/Schedule";
+
+interface OnboardInfo {
+        business: {
+            name: string
+        },
+        locations: {
+            id: string,
+            name: string,
+            address: string
+        }[],
+        locationRoles: {
+            location_id: string,
+            role_id: string
+        }[],
+        locationOpeningHours: {
+            location_id: string,
+            day_of_week:number,
+            open_time: string,
+            close_time: string
+        }[],
+        roles: {
+            name: string,
+            description: string,
+            id: string
+        }[],
+        staffRequirements: {
+            id: string,
+            shift_id: string,
+            role_id: string,
+            employees_required: number
+        }[],
+        shifts: {
+            id: string
+            shift_id: string,
+            shift_name: string,
+            location_id: string,
+            start_time: string,
+            end_time: string,
+            date: string
+        }[]
+}
 
 export default function Onboarding(props: WrapperProps) {
-    const [step, setStep] = useState(0);
+    const [onboardData, setOnboardData] = useState<OnboardInfo|null>(null);
     const [finish, setFinished] = useState(false);
     const [messages, setMessages] = useState<{from: string, msg: string, error?: string, loading: boolean, id: string}[]>([])
     const [waiting, setWaiting] = useState(true);
@@ -60,6 +103,16 @@ export default function Onboarding(props: WrapperProps) {
         })
     }
 
+    const onOnboard = async () => {
+        setLoading(true);
+        let [chatbot, human] = splitMessages();
+        let response = await onboardFinishFn({variables: {chatbot, human, summary: chatbot[chatbot.length - 1]}})
+        console.log("RESPONSE FINISH", response);
+        setOnboardData(response.data.convertSummaryToJsonAndPopulateDb.jsonOutput);
+        open();
+        setLoading(false);
+    }
+
     const waitForAi = async (question: string) => {
         setMessages(msgs => {
             msgs.push({from: "ai", msg: "", loading: true, id: randomId()});
@@ -69,7 +122,6 @@ export default function Onboarding(props: WrapperProps) {
             const response = await onSubmitQuestion(question);
             if(response.stop_chat) {
                 setFinished(true)
-                open()
             }
             setMessages(msgs => {
                 msgs[msgs.length - 1].msg = response.response
@@ -122,15 +174,6 @@ export default function Onboarding(props: WrapperProps) {
         </>
     }
     const [loaderBtn, setLoading] = useState(false);
-    const onAccept = async () => {
-        setLoading(true);
-        let [chatbot, human] = splitMessages();
-        let response = await onboardFinishFn({variables: {chatbot, human, summary: chatbot[chatbot.length - 1]}})
-        if(response.data) {
-            props.onFinish?.();
-        }
-        setLoading(false);
-    }
 
     const getMd = (msg: string) => {
         return msg.substring(
@@ -139,7 +182,74 @@ export default function Onboarding(props: WrapperProps) {
         );
     }
     
+
     return <>
+    <Modal size={"xl"} title="Validate business information" opened={opened} onClose={close}>
+        {onboardData && <>
+                <TextInput label="Name" value={onboardData.business.name} />
+                <Accordion variant="separated">
+                    {onboardData.locations.map(loc => {
+                        return <Accordion.Item value={loc.id} key={"loc:"+loc.id}>
+                            <Accordion.Control>{loc.name} {loc.address}</Accordion.Control>
+                            <Accordion.Panel>
+                                <TextInput label="Name" value={loc.name} />
+                                <TextInput label="Address" value={loc.address} />
+                                <Accordion variant="separated">
+                                    {[1,2,3,4,5,6,7].map(dayId => {
+                                        const openingHours = onboardData.locationOpeningHours.find(v => v.day_of_week == dayId && v.location_id == loc.id);
+                                        if(!openingHours) {
+                                            return <Accordion.Item value="-1">
+                                                 <Accordion.Control>{dayNumToKey[dayId]} (Closed)</Accordion.Control>
+                                                 <Accordion.Panel>
+                                                    <Button>Add this day</Button>
+                                                 </Accordion.Panel>
+                                            </Accordion.Item>
+                                        }
+                                        const roles = onboardData.locationRoles.filter(r => r.location_id == loc.id).map(r => {
+                                            return onboardData.roles.find(v => v.id == r.role_id)
+                                        })
+                                        const shifts = onboardData.shifts.filter(s => s.location_id == loc.id);
+                                        const todaysShifts = shifts.filter(s => new Date(s.date).getDay() == dayId);
+
+                                        return <Accordion.Item value={dayId+"day"} key={"day" + dayId}>
+                                            <Accordion.Control>{dayNumToKey[dayId]} (Open)</Accordion.Control>
+                                            <Accordion.Panel>
+                                                <Group mb={"sm"} grow>
+                                                    <TextInput label="Open" value={openingHours?.open_time} />
+                                                    <TextInput label="Close" value={openingHours?.close_time} />
+                                                </Group>
+                                                <Accordion variant="separated"></Accordion>
+                                                {todaysShifts.map(ts => {
+                                                    return <Accordion.Item value={"shiftId: " + ts.shift_id + loc.id}>
+                                                            <Accordion.Control>{ts.start_time} - {ts.end_time}</Accordion.Control>
+                                                            <Accordion.Panel>
+                                                                <Stack gap={"sm"}>
+                                                                    {roles.map(r => {
+                                                                        const requirement = onboardData.staffRequirements.find(re => re.role_id == r?.id && re.id == ts.id);
+                                                                        return <Group grow>
+                                                                            <TextInput label="Role" value={r?.name} />
+                                                                            <NumberInput label="Amount Needed" value={requirement?.employees_required} />
+                                                                        </Group>
+                                                                    })}
+                                                                    
+                                                                </Stack>
+                                                            </Accordion.Panel>
+                                                    </Accordion.Item>
+                                                })}
+                                            </Accordion.Panel>
+                                        </Accordion.Item>
+                                    })}
+                                </Accordion>
+                            </Accordion.Panel>
+                        </Accordion.Item>
+                    })}
+                </Accordion>
+                <Button loading={loading} onClick={() => {
+                    setLoading(true); 
+                    setTimeout(() => props?.onFinish?.(), 1000)
+                }}>Save Changes</Button>
+        </>}
+    </Modal>
     <Container size="sm" top={0} mb={120}>
         <Title c={"#222222"} mb={0} ta={"center"} fw={500} mt={rem(50)}>Welcome to <strong>Scheduler</strong></Title>
         <Title order={6} opacity={0.8} ta={"center"} mt={"xs"}>To get started, answer the following questions from our AI assistent to setup your business!</Title>
@@ -153,7 +263,7 @@ export default function Onboarding(props: WrapperProps) {
                 </Paper>
             </Group>
             })}
-            {finish && <Button loading={loaderBtn} className="chat-bubble" radius={"xl"} onClick={onAccept}>Accept summary and finish onboarding!</Button>}
+            {finish && <Button loading={loaderBtn} className="chat-bubble" radius={"xl"} onClick={onOnboard}>Validate summary!</Button>}
         </Stack>
     </Container>
     <Container style={{zIndex: 2}} pos={"fixed"} mx={"auto"} bottom={0} mb={16} left={0} right={0} size="sm">

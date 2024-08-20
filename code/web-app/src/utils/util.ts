@@ -50,3 +50,8 @@ export function getWeek(date: Date){
 
   return (days_from_first_monday>=0 && days_from_first_monday<364) ? Math.ceil((days_from_first_monday+1)/7) : 52;
 }
+
+
+export function find <T>(objArr: T[], prop: string, val: any): T|undefined {
+  return objArr.find((obj: any) => obj[prop] == val);
+}
