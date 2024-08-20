@@ -8,7 +8,9 @@
     animation-duration: 0.5s;
     animation-fill-mode: forwards;
 }
-
+body {
+    background: rgb(248, 248, 250);
+}
 @keyframes fadein {
     from {
         opacity:0;

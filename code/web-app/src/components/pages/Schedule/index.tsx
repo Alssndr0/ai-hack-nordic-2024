@@ -125,7 +125,7 @@ const createSchedule = (template: any, weekData: any[]) => {
 const createTemplateStructure = (template: any) => {
     const obj: any = {};
     template.forEach((shift: any) => {
-        const day = dayNumToKey[shift.dayOfWeek];
+        const day = dayNumToKey[shift.dayOfWeek == 7 ? 0 : shift.dayOfWeek];
 
         let dayObj = obj[day]
         if(!dayObj) {
@@ -225,9 +225,11 @@ export default function Schedule() {
         const filledObj = createSchedule(obj, schedData.getSchedulesByWeek); 
         if(schedData.getSchedulesByWeek.length == 0) {
             setWeekGenerated(false);
+        } else {
+            setWeekGenerated(true);
         }
-        console.log("DATA", obj, filledObj);
-        setWeekInfo(filledObj); 
+        console.log("SETTING WEEK INFO", obj, filledObj);
+        setWeekInfo({...filledObj}); 
     }, [templateData, schedData, loadingSched])
     
     useEffect(() => {
