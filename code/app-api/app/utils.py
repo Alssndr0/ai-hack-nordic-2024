@@ -93,15 +93,310 @@ sample_json = {
         "id": "6",
         "location_id": "1",
         "day_of_week": 6,
-        "open_time": "10:00",
-        "close_time": "24:00"
+        "open_time": "11:00",
+        "close_time": "23:00"
       },
       {
         "id": "7",
         "location_id": "1",
         "day_of_week": 7,
-        "open_time": "10:00",
-        "close_time": "24:00"
+        "open_time": "11:00",
+        "close_time": "23:00"
+      }
+    ],
+    "roles": [
+      {
+        "id": "1",
+        "name": "Head Chef",
+        "description": "Oversees kitchen operations"
+      },
+      {
+        "id": "2",
+        "name": "Cook",
+        "description": "Prepares and cooks food"
+      },
+      {
+        "id": "3",
+        "name": "Server",
+        "description": "Serves food and beverages"
+      },
+      {
+        "id": "4",
+        "name": "Receptionist",
+        "description": "Manages front desk"
+      }
+    ],
+    "staffRequirements": [
+      {
+        "id": "1",
+        "shift_id": "1",
+        "role_id": "1",
+        "employees_required": 1
+      },
+      {
+        "id": "2",
+        "shift_id": "1",
+        "role_id": "2",
+        "employees_required": 2
+      },
+      {
+        "id": "3",
+        "shift_id": "1",
+        "role_id": "3",
+        "employees_required": 2
+      },
+      {
+        "id": "4",
+        "shift_id": "1",
+        "role_id": "4",
+        "employees_required": 1
+      },
+      {
+        "id": "5",
+        "shift_id": "2",
+        "role_id": "1",
+        "employees_required": 1
+      },
+      {
+        "id": "6",
+        "shift_id": "2",
+        "role_id": "2",
+        "employees_required": 2
+      },
+      {
+        "id": "7",
+        "shift_id": "2",
+        "role_id": "3",
+        "employees_required": 2
+      },
+      {
+        "id": "8",
+        "shift_id": "2",
+        "role_id": "4",
+        "employees_required": 1
+      }
+    ],
+"shifts": [
+    {
+        "id": "1",
+        "shift_id": "1",
+        "shift_name": "Morning",
+        "location_id": "1",
+        "start_time": "11:00",
+        "end_time": "17:00",
+        "date": "2024-08-19"
+    },
+    {
+        "id": "2",
+        "shift_id": "2",
+        "shift_name": "Evening",
+        "location_id": "1",
+        "start_time": "17:00",
+        "end_time": "23:00",
+        "date": "2024-08-19"
+    },
+    {
+        "id": "3",
+        "shift_id": "1",
+        "shift_name": "Morning",
+        "location_id": "1",
+        "start_time": "11:00",
+        "end_time": "17:00",
+        "date": "2024-08-20"
+    },
+    {
+        "id": "4",
+        "shift_id": "2",
+        "shift_name": "Evening",
+        "location_id": "1",
+        "start_time": "17:00",
+        "end_time": "23:00",
+        "date": "2024-08-20"
+    },
+    {
+        "id": "5",
+        "shift_id": "1",
+        "shift_name": "Morning",
+        "location_id": "1",
+        "start_time": "11:00",
+        "end_time": "17:00",
+        "date": "2024-08-21"
+    },
+    {
+        "id": "6",
+        "shift_id": "2",
+        "shift_name": "Evening",
+        "location_id": "1",
+        "start_time": "17:00",
+        "end_time": "23:00",
+        "date": "2024-08-21"
+    },
+    {
+        "id": "7",
+        "shift_id": "1",
+        "shift_name": "Morning",
+        "location_id": "1",
+        "start_time": "11:00",
+        "end_time": "17:00",
+        "date": "2024-08-22"
+    },
+    {
+        "id": "8",
+        "shift_id": "2",
+        "shift_name": "Evening",
+        "location_id": "1",
+        "start_time": "17:00",
+        "end_time": "23:00",
+        "date": "2024-08-22"
+    },
+    {
+        "id": "9",
+        "shift_id": "1",
+        "shift_name": "Morning",
+        "location_id": "1",
+        "start_time": "11:00",
+        "end_time": "17:00",
+        "date": "2024-08-23"
+    },
+    {
+        "id": "10",
+        "shift_id": "2",
+        "shift_name": "Evening",
+        "location_id": "1",
+        "start_time": "17:00",
+        "end_time": "23:00",
+        "date": "2024-08-23"
+    },
+    {
+        "id": "11",
+        "shift_id": "1",
+        "shift_name": "Morning",
+        "location_id": "1",
+        "start_time": "11:00",
+        "end_time": "17:00",
+        "date": "2024-08-24"
+    },
+    {
+        "id": "12",
+        "shift_id": "2",
+        "shift_name": "Evening",
+        "location_id": "1",
+        "start_time": "17:00",
+        "end_time": "23:00",
+        "date": "2024-08-24"
+    },
+    {
+        "id": "13",
+        "shift_id": "1",
+        "shift_name": "Morning",
+        "location_id": "1",
+        "start_time": "11:00",
+        "end_time": "17:00",
+        "date": "2024-08-25"
+    },
+    {
+        "id": "14",
+        "shift_id": "2",
+        "shift_name": "Evening",
+        "location_id": "1",
+        "start_time": "17:00",
+        "end_time": "23:00",
+        "date": "2024-08-25"
+    }
+]
+
+  }
+}
+
+
+sample_json_old = {
+  "input": {
+    "business": {
+      "id": "1",
+      "location_id": "1",
+      "name": "Italian Pizzeria",
+      "email": "contact@italianpizzeria.com"
+    },
+    "locations": [
+      {
+        "id": "1",
+        "business_id": "1",
+        "name": "Italian Pizzeria Kensington",
+        "address": "Central London, Kensington",
+        "email": "kensington@italianpizzeria.com"
+      }
+    ],
+    "locationRoles": [
+      {
+        "id": "1",
+        "location_id": "1",
+        "role_id": "1"
+      },
+      {
+        "id": "2",
+        "location_id": "1",
+        "role_id": "2"
+      },
+      {
+        "id": "3",
+        "location_id": "1",
+        "role_id": "3"
+      },
+      {
+        "id": "4",
+        "location_id": "1",
+        "role_id": "4"
+      }
+    ],
+    "locationOpeningHours": [
+      {
+        "id": "1",
+        "location_id": "1",
+        "day_of_week": 1,
+        "open_time": "11:00",
+        "close_time": "23:00"
+      },
+      {
+        "id": "2",
+        "location_id": "1",
+        "day_of_week": 2,
+        "open_time": "11:00",
+        "close_time": "23:00"
+      },
+      {
+        "id": "3",
+        "location_id": "1",
+        "day_of_week": 3,
+        "open_time": "11:00",
+        "close_time": "23:00"
+      },
+      {
+        "id": "4",
+        "location_id": "1",
+        "day_of_week": 4,
+        "open_time": "11:00",
+        "close_time": "23:00"
+      },
+      {
+        "id": "5",
+        "location_id": "1",
+        "day_of_week": 5,
+        "open_time": "11:00",
+        "close_time": "23:00"
+      },
+      {
+        "id": "6",
+        "location_id": "1",
+        "day_of_week": 6,
+        "open_time": "11:00",
+        "close_time": "23:00"
+      },
+      {
+        "id": "7",
+        "location_id": "1",
+        "day_of_week": 7,
+        "open_time": "11:00",
+        "close_time": "23:00"
       }
     ],
     "roles": [

@@ -13,8 +13,9 @@ def assign_roles_by_shift(shifts, staff_requirements, employees, constraints, em
     print(f"Employee daily shifts: {employee_daily_shifts}")
 
     for shift in shifts:
-        #print(shift)
-        shift_id = shift.shift_id
+        #print(shift_id)
+        shift_id = shift.sid
+        shift_type_id = shift.shift_id
         shift_time = shift.shift_name  # Morning or Evening
         shift_date = shift.date
 
@@ -27,7 +28,7 @@ def assign_roles_by_shift(shifts, staff_requirements, employees, constraints, em
         #     shift_date = (datetime.strptime(shift_date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
 
  
-        if not any([(shift_id == staff_requirement.shift_id) for staff_requirement in staff_requirements]):
+        if not any([(shift_type_id == staff_requirement.shift_id) for staff_requirement in staff_requirements]):
             print(f"No staff requirements for shift_id: {shift_id}, skipping")
             continue
  
@@ -42,7 +43,7 @@ def assign_roles_by_shift(shifts, staff_requirements, employees, constraints, em
             "employees_required": entry.employees_required
         }
         for entry in staff_requirements
-        if entry.shift_id == shift_id
+        if entry.shift_id == shift_type_id
         ]
 
         #print(f"Roles required for shift {shift_id}: {roles_required}")
@@ -78,7 +79,7 @@ def assign_roles_by_shift(shifts, staff_requirements, employees, constraints, em
                         employee_daily_shifts[emp_id][shift_date] = 0
  
                     if (
-                        next((not c.is_available for c in constraints if c.employee_id == emp_id and c.shift_id == shift_id), True) and
+                        next((not c.is_available for c in constraints if c.employee_id == emp_id and c.shift_id == shift_type_id), True) and
                         int(employee.contracted_hours) - employee_assigned_hours[emp_id] >= shift_duration and
                         employee_daily_shifts[emp_id][shift_date] < 1 and
                         emp_id not in schedule_by_shift_id[shift_id]["roles"][role]
@@ -97,6 +98,7 @@ def assign_roles_by_shift(shifts, staff_requirements, employees, constraints, em
 
     # Convert the nested structure to a flat structure
     flat_schedule = []
+    print('schedule_by_shift_id : ', schedule_by_shift_id)
     for shift_id, shift_info in schedule_by_shift_id.items():
         for role_id, employees in shift_info["roles"].items():
             for emp_id in employees:
@@ -107,7 +109,7 @@ def assign_roles_by_shift(shifts, staff_requirements, employees, constraints, em
                         role_id= role_id
                     )
                     flat_schedule.append(schedulecreateinput)
-    
+    print('Flat Schedule : ', flat_schedule)
     return flat_schedule
 
 # from .types import ScheduleCreateInput
