@@ -63,8 +63,8 @@ async def map_json_to_db(data):
     # Create Shifts
     if 'shifts' in data:
         shifts_data=data.get('shifts', [])
-        #generated_shifts = generate_shifts_for_year("2023-01-01", shifts_data)
-        await create_shifts(shifts_data)
+        generated_shifts = generate_shifts_for_current_week(shifts_data)
+        await create_shifts(generated_shifts)
 
     # Create Roles
     if 'roles' in data:

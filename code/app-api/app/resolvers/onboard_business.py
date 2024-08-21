@@ -100,8 +100,7 @@ class Mutation:
             scheduler_system = """You are a helpful assistant. Based on the provided information you will return a structured representation of all the given business attributes, and return it in a json format. 
             1. Do not leave any attribute empty, 
             2. remember to fill all the primary and foreign IDs. 
-            3. There is a 'date' field in the Shifts section, input current year and week dates to populate the shifts entries.
-            4. Remember, the staffRequirement table """
+            3. Create just 2 entries in shifts for each shift_name and fill any random dates"""
  
             history = [{"role": "system", "content": scheduler_system}]
 
@@ -120,9 +119,9 @@ class Mutation:
                 )
 
             # Extract the JSON from the response
-            #json_response = completion.choices[0].message.content
+            json_response = completion.choices[0].message.content
             #print(json_response)
-            json_response = json.dumps(sample_json)
+            #json_response = json.dumps(sample_json)
             # insert the busines json to db:
             key_id = str(uuid.uuid1())
             cb.insert(env.get_couchbase_conf(),
