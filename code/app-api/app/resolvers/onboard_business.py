@@ -17,7 +17,6 @@ from .location_opening_hours import LocationOpeningHoursCreateInput as LocationO
 from .roles import RoleCreateInput as Role
 from .staff_requirements import StaffRequirementCreateInput as StaffRequirement
 from .shifts import  ShiftCreateInput as Shift
-from ..utils import sample_json
 
 # Set up the OpenAI client
 openai_key = os.getenv("OPENAI_API_KEY")  # Ensure you set your OpenAI API key here

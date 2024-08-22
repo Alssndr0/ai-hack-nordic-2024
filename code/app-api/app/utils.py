@@ -19,7 +19,7 @@ class EmployeeData:
 def random_date(start, end):
     return start + timedelta(days=random.randint(0, int((end - start).days)))
 
-def generate_employee_data(n=16):
+def generate_employee_data(n=16)  -> list[EmployeeData]:
     first_names = ["William", "James", "Emily", "Sophia", "Michael", "Sarah"]
     last_names = ["Smith", "Johnson", "Williams", "Jones", "Brown", "Davis"]
     streets = ["Main St"]
@@ -28,7 +28,7 @@ def generate_employee_data(n=16):
     locations = [1]
 
     employees = []
-    for _ in range(n):
+    for i in range(n):
         first_name = random.choice(first_names)
         last_name = random.choice(last_names)
         phone_number = f"+44{random.randint(7000000000, 7999999999)}"
@@ -37,9 +37,19 @@ def generate_employee_data(n=16):
         date_of_birth = random_date(datetime(1960, 1, 1), datetime(2005, 12, 31)).strftime('%Y-%m-%d')
         emergency_contact = f"{random.choice(first_names)} {random.choice(last_names)}, +44{random.randint(7000000000, 7999999999)}"
         dateHired = random_date(datetime(2010, 1, 1), datetime.today()).strftime('%Y-%m-%d')
-        contracted_hours = str(random.randint(20, 500))
-        employee_locations = random.sample(locations, k=random.randint(1, 3))
-        employee_roles = random.sample(roles, k=random.randint(1, 2))
+        contracted_hours = str(random.randint(40, 60))
+        employee_locations = random.sample(locations, k=random.randint(1, 1))
+        if i < 7:
+            employee_roles = [roles[0]]  # First 7 employees
+        elif i < 12:
+            employee_roles = [roles[2]]  # Next 5 employees
+        elif i < 13:
+            employee_roles = [roles[1]]  # Next 2 employees
+        else:
+            employee_roles = [roles[3]]  # Remaining employees
+
+
+        
 
         employee = EmployeeData(
             first_name=first_name,
