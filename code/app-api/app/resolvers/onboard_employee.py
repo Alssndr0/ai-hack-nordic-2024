@@ -39,8 +39,6 @@ class Mutation:
             emergency_contact=input.emergency_contact,
             date_hired= input.date_hired,
             contracted_hours= input.contracted_hours
-            # roles=[],
-            # locations=[]
         )
         await EmployeeMutation().employee_create([employee_input])
 

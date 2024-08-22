@@ -58,12 +58,6 @@ class Mutation:
                                      'name': role['name'],
                                      'description': role['description']
                                  }))
-            # created_role = Role(
-            #     id=id,
-            #     name=role.name,
-            #     description=role.description
-            # )
-            # created_roles.append(created_role)
         return True
 
     @strawberry.field(permission_classes=[IsAuthenticated])

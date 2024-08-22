@@ -99,10 +99,6 @@ class ScheduleTemplate:
     location_id: str
     location_name: str
 
-    
-
-
-
 
 @strawberry.type
 class Query:

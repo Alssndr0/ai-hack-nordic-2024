@@ -61,13 +61,6 @@ class Mutation:
                                      'role_id': requirement['role_id'],
                                      'employees_required': requirement['employees_required']
                                  }))
-            # created_staff_requirement = StaffRequirement(
-            #     id=id,
-            #     shift_id=requirement.shift_id,
-            #     role_id=requirement.role_id,
-            #     employees_required=requirement.employees_required
-            # )
-            # created_staff_requirements.append(created_staff_requirement)
         return True
 
     @strawberry.field(permission_classes=[IsAuthenticated])

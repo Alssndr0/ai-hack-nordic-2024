@@ -70,15 +70,6 @@ class Mutation:
                                      'end_time': shift['end_time'],
                                      'date': shift['date']
                                  }))
-            # created_shift = Shift(
-            #     id=id,
-            #     shift_name=shift.shift_name,
-            #     location_id=shift.location_id,
-            #     start_time=shift.start_time,
-            #     end_time=shift.end_time,
-            #     date=shift.date
-            # )
-            # created_shifts.append(created_shift)
         return True
 
     @strawberry.field(permission_classes=[IsAuthenticated])

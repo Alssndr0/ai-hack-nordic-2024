@@ -57,12 +57,6 @@ class Mutation:
                                      'location_id': location_role['location_id'],
                                      'role_id': location_role['role_id']
                                  }))
-            # created_location_role = LocationRole(
-            #     id=id,
-            #     location_id=location_role.location_id,
-            #     role_id=location_role.role_id
-            # )
-            # created_location_roles.append(created_location_role)
         return True
 
     @strawberry.field(permission_classes=[IsAuthenticated])

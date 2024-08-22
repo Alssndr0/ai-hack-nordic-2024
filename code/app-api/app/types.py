@@ -2,7 +2,6 @@ import strawberry
 from typing import List
 
 
-
 @strawberry.type
 class Message:
     message: str

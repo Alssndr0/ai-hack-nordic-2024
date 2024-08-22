@@ -25,8 +25,6 @@ def employee_info_by_id(id: str):
     return Employee(id=id, **result.content_as[dict])
 
 
-
-
 @strawberry.type
 class Employee:
     id: str
@@ -147,24 +145,6 @@ class Subscription:
                     yield p
 
             await asyncio.sleep(0.5)
-
-
-# # finally defining the schema:
-# schema = strawberry.schema(query = Query, mutation = Mutation, subscription = Subscription)
-
-
-# from fastapi import FastAPI
-# from strawberry.fastapi import GraphQLRouter
-
-# app = FastAPI()
-
-# graphql_app = GraphQLRouter(schema)
-
-# app.include_router(graphql_app, prefix="/graphql")
-
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
 

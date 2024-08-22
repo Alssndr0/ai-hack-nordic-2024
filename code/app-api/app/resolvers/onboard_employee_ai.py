@@ -7,7 +7,7 @@ import json
 from openai import OpenAI
 from docx import Document
 import asyncio
-from ..utils import employee_data_list
+from ..utils import generate_employee_data
 
 # Set up the OpenAI client
 openai_key = os.getenv("OPENAI_API_KEY")  # Ensure you set your OpenAI API key here
@@ -16,7 +16,6 @@ client = OpenAI(api_key= openai_key)
 
 # this is the chat function, takes our system instruction, user message and chatbot memory
 def chat(user):
-
     # this is the instruction that is persistently passed to the model 
     system = """You are a helpful assistant. You only need to find the requested data, if present, in the given text, and return it in this json format:\n
             ```json
@@ -115,8 +114,7 @@ class Mutation:
         #     employee_data = EmployeeData(**chat_response)
         #     employee_data_list.append(employee_data)
 
-        # Hardcoded JSON data for demo purposes
-        # employee_data_list = employee_data_list
-        await asyncio.sleep(2)
+        # speed this up for demo pourposes
+        employee_data_list = generate_employee_data()
 
         return employee_data_list

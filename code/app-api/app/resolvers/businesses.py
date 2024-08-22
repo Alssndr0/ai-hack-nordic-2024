@@ -62,13 +62,6 @@ class Mutation:
                                     'name': business['name'],
                                     'email': business['email']
                                 }))
-        # created_business = Business(
-        #     id=business.id,
-        #     location_id=business.location_id,
-        #     name=business.name,
-        #     email=business.email
-        # )
-        # created_businesses.append(created_business)
         return True
 
     @strawberry.field(permission_classes=[IsAuthenticated])

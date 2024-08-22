@@ -16,9 +16,6 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-
-
-
 @app.on_event("startup")
 async def reinit():
     init.init()

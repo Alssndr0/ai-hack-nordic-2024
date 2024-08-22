@@ -73,7 +73,3 @@ async def map_json_to_db(data):
     # Create Staff Requirements
     if 'staffRequirements' in data:
         await create_staff_requirements(staff_requirements_data=data.get('staffRequirements', []))
-
-# if __name__ == "__main__":
-#     import asyncio
-#     asyncio.run(map_json_to_db('data.json'))
